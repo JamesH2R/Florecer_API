@@ -1,0 +1,167 @@
+USE [FlorecerApp]
+GO
+/****** Object:  Table [dbo].[Appointments]    Script Date: 9/29/2023 7:27:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Appointments](
+	[AppointmentId] [bigint] NOT NULL,
+	[PatientId] [bigint] NULL,
+	[PersonnelId] [bigint] NULL,
+	[Date] [datetime] NULL,
+	[Hour] [nvarchar](50) NULL,
+	[EstadoCita] [nvarchar](50) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[AppointmentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Binnacle]    Script Date: 9/29/2023 7:27:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Binnacle](
+	[BinnacleId] [bigint] NOT NULL,
+	[UserId] [bigint] NULL,
+	[PerformedAction] [nvarchar](max) NULL,
+	[OccurrencyDate] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[BinnacleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MedicalPersonnel]    Script Date: 9/29/2023 7:27:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MedicalPersonnel](
+	[PersonnelId] [bigint] NOT NULL,
+	[Name] [nvarchar](50) NULL,
+	[LastName] [nvarchar](50) NULL,
+	[SpecialtyId] [bigint] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[PersonnelId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MedicalTests]    Script Date: 9/29/2023 7:27:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MedicalTests](
+	[TestId] [bigint] NOT NULL,
+	[TestName] [nvarchar](100) NULL,
+	[Description] [nvarchar](max) NULL,
+	[TestType] [nvarchar](50) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[TestId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Roles]    Script Date: 9/29/2023 7:27:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Roles](
+	[RoleId] [bigint] NOT NULL,
+	[RoleName] [nvarchar](50) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Specialties]    Script Date: 9/29/2023 7:27:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Specialties](
+	[SpecialtyId] [bigint] NOT NULL,
+	[SpecialtyName] [nvarchar](100) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[SpecialtyId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TestResults]    Script Date: 9/29/2023 7:27:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TestResults](
+	[ResultId] [bigint] NOT NULL,
+	[PatientId] [bigint] NULL,
+	[PersonnelId] [bigint] NULL,
+	[TestId] [bigint] NULL,
+	[Date] [datetime] NULL,
+	[Score] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[ResultId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Users]    Script Date: 9/29/2023 7:27:38 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Users](
+	[UserId] [bigint] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[LastName] [nvarchar](50) NOT NULL,
+	[Email] [nvarchar](100) NOT NULL,
+	[Password] [nvarchar](100) NOT NULL,
+	[RoleId] [bigint] NOT NULL,
+	[Status] [bit] NOT NULL,
+	[TemporalKey] [bit] NULL,
+	[Expiration] [datetime] NULL,
+ CONSTRAINT [PK__Users__1788CC4C57B61B05] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[Appointments]  WITH CHECK ADD  CONSTRAINT [FK__Appointme__Patie__403A8C7D] FOREIGN KEY([PatientId])
+REFERENCES [dbo].[Users] ([UserId])
+GO
+ALTER TABLE [dbo].[Appointments] CHECK CONSTRAINT [FK__Appointme__Patie__403A8C7D]
+GO
+ALTER TABLE [dbo].[Appointments]  WITH CHECK ADD FOREIGN KEY([PersonnelId])
+REFERENCES [dbo].[MedicalPersonnel] ([PersonnelId])
+GO
+ALTER TABLE [dbo].[Binnacle]  WITH CHECK ADD  CONSTRAINT [FK__Binnacle__UserId__4AB81AF0] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([UserId])
+GO
+ALTER TABLE [dbo].[Binnacle] CHECK CONSTRAINT [FK__Binnacle__UserId__4AB81AF0]
+GO
+ALTER TABLE [dbo].[MedicalPersonnel]  WITH CHECK ADD FOREIGN KEY([SpecialtyId])
+REFERENCES [dbo].[Specialties] ([SpecialtyId])
+GO
+ALTER TABLE [dbo].[TestResults]  WITH CHECK ADD  CONSTRAINT [FK__TestResul__Patie__45F365D3] FOREIGN KEY([PatientId])
+REFERENCES [dbo].[Users] ([UserId])
+GO
+ALTER TABLE [dbo].[TestResults] CHECK CONSTRAINT [FK__TestResul__Patie__45F365D3]
+GO
+ALTER TABLE [dbo].[TestResults]  WITH CHECK ADD FOREIGN KEY([PersonnelId])
+REFERENCES [dbo].[MedicalPersonnel] ([PersonnelId])
+GO
+ALTER TABLE [dbo].[TestResults]  WITH CHECK ADD FOREIGN KEY([TestId])
+REFERENCES [dbo].[MedicalTests] ([TestId])
+GO
+ALTER TABLE [dbo].[Users]  WITH CHECK ADD  CONSTRAINT [FK__Users__RoleId__38996AB5] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[Roles] ([RoleId])
+GO
+ALTER TABLE [dbo].[Users] CHECK CONSTRAINT [FK__Users__RoleId__38996AB5]
+GO
