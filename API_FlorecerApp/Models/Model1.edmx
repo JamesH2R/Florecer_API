@@ -4,17 +4,16 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="FlorecerAppModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="FlorecerAppModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Appointments">
           <Key>
             <PropertyRef Name="AppointmentId" />
           </Key>
           <Property Name="AppointmentId" Type="bigint" Nullable="false" />
-          <Property Name="PatientId" Type="bigint" />
-          <Property Name="PersonnelId" Type="bigint" />
-          <Property Name="Date" Type="datetime" />
-          <Property Name="Hour" Type="nvarchar" MaxLength="50" />
-          <Property Name="EstadoCita" Type="nvarchar" MaxLength="50" />
+          <Property Name="PatientId" Type="bigint" Nullable="false" />
+          <Property Name="Date" Type="date" Nullable="false" />
+          <Property Name="Hour" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Notes" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="Binnacle">
           <Key>
@@ -30,9 +29,10 @@
             <PropertyRef Name="PersonnelId" />
           </Key>
           <Property Name="PersonnelId" Type="bigint" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="50" />
-          <Property Name="LastName" Type="nvarchar" MaxLength="50" />
-          <Property Name="SpecialtyId" Type="bigint" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Specialization" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Bio" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="MedicalTests">
           <Key>
@@ -54,7 +54,7 @@
           <Key>
             <PropertyRef Name="SpecialtyId" />
           </Key>
-          <Property Name="SpecialtyId" Type="bigint" Nullable="false" />
+          <Property Name="SpecialtyId" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="SpecialtyName" Type="nvarchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="TestResults">
@@ -83,7 +83,7 @@
           <Property Name="Expiration" Type="datetime" />
         </EntityType>
         <Association Name="FK__Appointme__Patie__403A8C7D">
-          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
           <End Role="Appointments" Type="Self.Appointments" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Users">
@@ -91,18 +91,6 @@
             </Principal>
             <Dependent Role="Appointments">
               <PropertyRef Name="PatientId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__Appointme__Perso__7E37BEF6">
-          <End Role="MedicalPersonnel" Type="Self.MedicalPersonnel" Multiplicity="0..1" />
-          <End Role="Appointments" Type="Self.Appointments" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MedicalPersonnel">
-              <PropertyRef Name="PersonnelId" />
-            </Principal>
-            <Dependent Role="Appointments">
-              <PropertyRef Name="PersonnelId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -119,14 +107,14 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__MedicalPe__Speci__00200768">
-          <End Role="Specialties" Type="Self.Specialties" Multiplicity="0..1" />
+          <End Role="Specialties" Type="Self.Specialties" Multiplicity="1" />
           <End Role="MedicalPersonnel" Type="Self.MedicalPersonnel" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Specialties">
               <PropertyRef Name="SpecialtyId" />
             </Principal>
             <Dependent Role="MedicalPersonnel">
-              <PropertyRef Name="SpecialtyId" />
+              <PropertyRef Name="Specialization" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -191,10 +179,6 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="Appointments" EntitySet="Appointments" />
           </AssociationSet>
-          <AssociationSet Name="FK__Appointme__Perso__7E37BEF6" Association="Self.FK__Appointme__Perso__7E37BEF6">
-            <End Role="MedicalPersonnel" EntitySet="MedicalPersonnel" />
-            <End Role="Appointments" EntitySet="Appointments" />
-          </AssociationSet>
           <AssociationSet Name="FK__Binnacle__UserId__4AB81AF0" Association="Self.FK__Binnacle__UserId__4AB81AF0">
             <End Role="Users" EntitySet="Users" />
             <End Role="Binnacle" EntitySet="Binnacle" />
@@ -220,8 +204,7 @@
             <End Role="Users" EntitySet="Users" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="FlorecerAppModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -230,13 +213,11 @@
             <PropertyRef Name="AppointmentId" />
           </Key>
           <Property Name="AppointmentId" Type="Int64" Nullable="false" />
-          <Property Name="PatientId" Type="Int64" />
-          <Property Name="PersonnelId" Type="Int64" />
-          <Property Name="Date" Type="DateTime" Precision="3" />
-          <Property Name="Hour" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="EstadoCita" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PatientId" Type="Int64" Nullable="false" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Hour" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Users" Relationship="Self.FK__Appointme__Patie__403A8C7D" FromRole="Appointments" ToRole="Users" />
-          <NavigationProperty Name="MedicalPersonnel" Relationship="Self.FK__Appointme__Perso__7E37BEF6" FromRole="Appointments" ToRole="MedicalPersonnel" />
+          <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Binnacle">
           <Key>
@@ -253,10 +234,10 @@
             <PropertyRef Name="PersonnelId" />
           </Key>
           <Property Name="PersonnelId" Type="Int64" Nullable="false" />
-          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="LastName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="SpecialtyId" Type="Int64" />
-          <NavigationProperty Name="Appointments" Relationship="Self.FK__Appointme__Perso__7E37BEF6" FromRole="MedicalPersonnel" ToRole="Appointments" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LastName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Specialization" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Bio" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Specialties" Relationship="Self.FK__MedicalPe__Speci__00200768" FromRole="MedicalPersonnel" ToRole="Specialties" />
           <NavigationProperty Name="TestResults" Relationship="Self.FK__TestResul__Perso__02084FDA" FromRole="MedicalPersonnel" ToRole="TestResults" />
         </EntityType>
@@ -282,7 +263,7 @@
           <Key>
             <PropertyRef Name="SpecialtyId" />
           </Key>
-          <Property Name="SpecialtyId" Type="Int64" Nullable="false" />
+          <Property Name="SpecialtyId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="SpecialtyName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="MedicalPersonnel" Relationship="Self.FK__MedicalPe__Speci__00200768" FromRole="Specialties" ToRole="MedicalPersonnel" />
         </EntityType>
@@ -319,7 +300,7 @@
           <NavigationProperty Name="TestResults" Relationship="Self.FK__TestResul__Patie__45F365D3" FromRole="Users" ToRole="TestResults" />
         </EntityType>
         <Association Name="FK__Appointme__Patie__403A8C7D">
-          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
           <End Role="Appointments" Type="Self.Appointments" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Users">
@@ -327,18 +308,6 @@
             </Principal>
             <Dependent Role="Appointments">
               <PropertyRef Name="PatientId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__Appointme__Perso__7E37BEF6">
-          <End Role="MedicalPersonnel" Type="Self.MedicalPersonnel" Multiplicity="0..1" />
-          <End Role="Appointments" Type="Self.Appointments" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MedicalPersonnel">
-              <PropertyRef Name="PersonnelId" />
-            </Principal>
-            <Dependent Role="Appointments">
-              <PropertyRef Name="PersonnelId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -355,14 +324,14 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__MedicalPe__Speci__00200768">
-          <End Role="Specialties" Type="Self.Specialties" Multiplicity="0..1" />
+          <End Role="Specialties" Type="Self.Specialties" Multiplicity="1" />
           <End Role="MedicalPersonnel" Type="Self.MedicalPersonnel" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Specialties">
               <PropertyRef Name="SpecialtyId" />
             </Principal>
             <Dependent Role="MedicalPersonnel">
-              <PropertyRef Name="SpecialtyId" />
+              <PropertyRef Name="Specialization" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -427,10 +396,6 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="Appointments" EntitySet="Appointments" />
           </AssociationSet>
-          <AssociationSet Name="FK__Appointme__Perso__7E37BEF6" Association="Self.FK__Appointme__Perso__7E37BEF6">
-            <End Role="MedicalPersonnel" EntitySet="MedicalPersonnel" />
-            <End Role="Appointments" EntitySet="Appointments" />
-          </AssociationSet>
           <AssociationSet Name="FK__Binnacle__UserId__4AB81AF0" Association="Self.FK__Binnacle__UserId__4AB81AF0">
             <End Role="Users" EntitySet="Users" />
             <End Role="Binnacle" EntitySet="Binnacle" />
@@ -465,12 +430,11 @@
           <EntitySetMapping Name="Appointments">
             <EntityTypeMapping TypeName="FlorecerAppModel.Appointments">
               <MappingFragment StoreEntitySet="Appointments">
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
                 <ScalarProperty Name="AppointmentId" ColumnName="AppointmentId" />
                 <ScalarProperty Name="PatientId" ColumnName="PatientId" />
-                <ScalarProperty Name="PersonnelId" ColumnName="PersonnelId" />
                 <ScalarProperty Name="Date" ColumnName="Date" />
                 <ScalarProperty Name="Hour" ColumnName="Hour" />
-                <ScalarProperty Name="EstadoCita" ColumnName="EstadoCita" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -490,7 +454,8 @@
                 <ScalarProperty Name="PersonnelId" ColumnName="PersonnelId" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="LastName" ColumnName="LastName" />
-                <ScalarProperty Name="SpecialtyId" ColumnName="SpecialtyId" />
+                <ScalarProperty Name="Specialization" ColumnName="Specialization" />
+                <ScalarProperty Name="Bio" ColumnName="Bio" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

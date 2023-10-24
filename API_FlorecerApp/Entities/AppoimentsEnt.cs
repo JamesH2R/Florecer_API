@@ -9,9 +9,8 @@ namespace API_FlorecerApp.Entities
     {
         public long AppoimentId { get; set; }
         public long PatientId { get; set; }
-        public long PersonnelId { get; set; }
         public DateTime Date { get; set; }
         public string Hour { get; set; }
-        public string EstadoCita { get; set; }
+        public string Notes { get; set; }
     }
 }

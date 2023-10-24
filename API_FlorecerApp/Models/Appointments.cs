@@ -15,13 +15,11 @@ namespace API_FlorecerApp.Models
     public partial class Appointments
     {
         public long AppointmentId { get; set; }
-        public Nullable<long> PatientId { get; set; }
-        public Nullable<long> PersonnelId { get; set; }
-        public Nullable<System.DateTime> Date { get; set; }
+        public long PatientId { get; set; }
+        public System.DateTime Date { get; set; }
         public string Hour { get; set; }
-        public string EstadoCita { get; set; }
+        public string Notes { get; set; }
     
         public virtual Users Users { get; set; }
-        public virtual MedicalPersonnel MedicalPersonnel { get; set; }
     }
 }
