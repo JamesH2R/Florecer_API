@@ -52,7 +52,6 @@ namespace API_FlorecerApp.Controllers
                         return Ok(resp);
                     }
                 }
-
                 return Unauthorized();
             }
         }
@@ -142,10 +141,6 @@ namespace API_FlorecerApp.Controllers
                 return 0;
             }
         }
-
-
-        /////////////////
-        ///
 
         [HttpGet]
         [Route("api/ConsultUsers")]
@@ -260,12 +255,6 @@ namespace API_FlorecerApp.Controllers
                 return 0;
             }
         }
-
-
-
-
-
-
     }
 }
 

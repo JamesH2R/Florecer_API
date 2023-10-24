@@ -217,6 +217,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\BinnacleController.cs" />
     <Compile Include="Entities\LoginEnt.cs" />
+    <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Entities\UsersEnt.cs" />
     <Compile Include="Entities\TestResultsEnt.cs" />
     <Compile Include="Entities\MedicalTestsEnt.cs" />
