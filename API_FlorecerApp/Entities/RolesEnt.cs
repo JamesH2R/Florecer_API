@@ -10,5 +10,9 @@ namespace API_FlorecerApp.Entities
         public long RoleId { get; set; }
         public string RoleName { get; set; }
 
+        public string Status { get; set; }
+
+        public int IdUsuario { get; set; }
+
     }
 }

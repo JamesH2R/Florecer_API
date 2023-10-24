@@ -5,12 +5,19 @@ using API_FlorecerApp.Entities;
 using API_FlorecerApp.Models;
 using API_FlorecerApp.App_Start;
 using Microsoft.Ajax.Utilities;
+using System.Collections.Generic;
 
 namespace API_FlorecerApp.Controllers
 {
 
     public class UserController : ApiController
     {
+
+
+        //Token Generator
+        TokenGenerator tok = new TokenGenerator();
+
+
         [HttpPost]
         [Route("api/Login")]
         [AllowAnonymous]
@@ -25,7 +32,7 @@ namespace API_FlorecerApp.Controllers
 
                 if (user != null)
                 {
-         
+
                     if (BCrypt.Net.BCrypt.Verify(entidad.Password, user.Password))
                     {
                         if (user.TemporalKey.Value && user.Expiration < DateTime.Now)
@@ -50,14 +57,14 @@ namespace API_FlorecerApp.Controllers
             }
         }
 
-            [HttpPost]
-            [Route("api/Register")]
-            [AllowAnonymous]
-            public IHttpActionResult Register(UsersEnt entidad)
+        [HttpPost]
+        [Route("api/Register")]
+        [AllowAnonymous]
+        public IHttpActionResult Register(UsersEnt entidad)
+        {
+            using (var bd = new FlorecerAppEntities())
             {
-                using (var bd = new FlorecerAppEntities())
-                {
-                 var existingUser = bd.Users.FirstOrDefault(x => x.Email == entidad.Email);
+                var existingUser = bd.Users.FirstOrDefault(x => x.Email == entidad.Email);
 
                 if (existingUser != null)
                 {
@@ -80,7 +87,7 @@ namespace API_FlorecerApp.Controllers
 
                 return Ok("Usuario registrado correctamente.");
             }
-           }
+        }
 
         [HttpPost]
         [Route("api/RecoverKey")]
@@ -135,6 +142,130 @@ namespace API_FlorecerApp.Controllers
                 return 0;
             }
         }
-    } 
-} 
+
+
+        /////////////////
+        ///
+
+        [HttpGet]
+        [Route("api/ConsultUsers")]
+        public List<UsersEnt> ConsultUsuarios()
+        {
+            using (var bd = new FlorecerAppEntities())
+            {
+                var datos = (from x in bd.Users
+                             select x).ToList();
+
+                if (datos.Count > 0)
+                {
+                    var resp = new List<UsersEnt>();
+                    foreach (var item in datos)
+                    {
+                        resp.Add(new UsersEnt
+                        {
+                            Email = item.Email,
+                            Name = item.Name,
+                            LastName = item.LastName,
+                            Status = item.Status,
+                            RoleId = item.RoleId,
+                            UserId = item.UserId
+                        });
+                    }
+                    return resp;
+                }
+                else
+                {
+                    return new List<UsersEnt>();
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("api/ConsultUser")]
+        public UsersEnt ConsultUser(long q)
+        {
+            using (var bd = new FlorecerAppEntities())
+            {
+                var datos = (from x in bd.Users
+                             where x.UserId == q
+                             select x).FirstOrDefault();
+
+                if (datos != null)
+                {
+                    UsersEnt resp = new UsersEnt();
+                    resp.Name = datos.Name;
+                    resp.LastName = datos.LastName;
+                    resp.Email = datos.Email;
+                    resp.Status = datos.Status;
+                    resp.RoleId = datos.RoleId;
+                    resp.UserId = datos.UserId;
+                    return resp;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("api/ConsultRoles")]
+        public List<RolesEnt> ConsultRoles()
+        {
+            using (var bd = new FlorecerAppEntities())
+            {
+                var datos = (from x in bd.Roles
+                             where x.Status == true
+                             select x).ToList();
+
+                if (datos.Count > 0)
+                {
+                    var resp = new List<RolesEnt>();
+                    foreach (var item in datos)
+                    {
+                        resp.Add(new RolesEnt
+                        {
+                            RoleId = item.RoleId,
+                            RoleName = item.RoleName,
+                        });
+                    }
+                    return resp;
+                }
+                else
+                {
+                    return new List<RolesEnt>();
+                }
+            }
+        }
+
+
+        [HttpPut]
+        [Route("api/EditUser")]
+        public int EditUser(UsersEnt entidad)
+        {
+            using (var bd = new FlorecerAppEntities())
+            {
+                var datos = (from x in bd.Users
+                             where x.UserId == entidad.UserId
+                             select x).FirstOrDefault();
+
+                if (datos != null)
+                {
+                    datos.Name = entidad.Name;
+                    datos.LastName = entidad.LastName;
+                    datos.Email = entidad.Email;
+                    return bd.SaveChanges();
+                }
+
+                return 0;
+            }
+        }
+
+
+
+
+
+
+    }
+}
 
