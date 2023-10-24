@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3fe2f3f726834ea9940fb812d12ab9e6" Name="Diagram1">
+      <Diagram DiagramId="edc3cb1673864c099a367d3f8bed4bd3" Name="Diagram1">
         <EntityTypeShape EntityType="FlorecerAppModel.Appointments" Width="1.5" PointX="5.25" PointY="4.625" IsExpanded="true" />
         <EntityTypeShape EntityType="FlorecerAppModel.Binnacle" Width="1.5" PointX="5.25" PointY="8.25" IsExpanded="true" />
         <EntityTypeShape EntityType="FlorecerAppModel.MedicalPersonnel" Width="1.5" PointX="3" PointY="0.75" IsExpanded="true" />
@@ -14,11 +14,10 @@
         <EntityTypeShape EntityType="FlorecerAppModel.TestResults" Width="1.5" PointX="8.25" PointY="4.5" IsExpanded="true" />
         <EntityTypeShape EntityType="FlorecerAppModel.Users" Width="1.5" PointX="3" PointY="4.125" IsExpanded="true" />
         <AssociationConnector Association="FlorecerAppModel.FK__Appointme__Patie__403A8C7D" ManuallyRouted="false" />
-        <AssociationConnector Association="FlorecerAppModel.FK__Appointme__Perso__412EB0B6" ManuallyRouted="false" />
         <AssociationConnector Association="FlorecerAppModel.FK__Binnacle__UserId__4AB81AF0" ManuallyRouted="false" />
-        <AssociationConnector Association="FlorecerAppModel.FK__MedicalPe__Speci__3D5E1FD2" ManuallyRouted="false" />
-        <AssociationConnector Association="FlorecerAppModel.FK__TestResul__Perso__46E78A0C" ManuallyRouted="false" />
-        <AssociationConnector Association="FlorecerAppModel.FK__TestResul__TestI__47DBAE45" ManuallyRouted="false" />
+        <AssociationConnector Association="FlorecerAppModel.FK__MedicalPe__Speci__00200768" ManuallyRouted="false" />
+        <AssociationConnector Association="FlorecerAppModel.FK__TestResul__Perso__02084FDA" ManuallyRouted="false" />
+        <AssociationConnector Association="FlorecerAppModel.FK__TestResul__TestI__02FC7413" ManuallyRouted="false" />
         <AssociationConnector Association="FlorecerAppModel.FK__Users__RoleId__38996AB5" ManuallyRouted="false" />
         <AssociationConnector Association="FlorecerAppModel.FK__TestResul__Patie__45F365D3" ManuallyRouted="false" />
       </Diagram>

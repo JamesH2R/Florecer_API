@@ -20,7 +20,7 @@ namespace API_FlorecerApp.Models
             this.MedicalPersonnel = new HashSet<MedicalPersonnel>();
         }
     
-        public long SpecialtyId { get; set; }
+        public string SpecialtyId { get; set; }
         public string SpecialtyName { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

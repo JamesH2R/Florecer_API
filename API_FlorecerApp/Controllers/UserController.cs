@@ -52,7 +52,6 @@ namespace API_FlorecerApp.Controllers
                         return Ok(resp);
                     }
                 }
-
                 return Unauthorized();
             }
         }
@@ -142,10 +141,6 @@ namespace API_FlorecerApp.Controllers
                 return 0;
             }
         }
-
-
-        /////////////////
-        ///
 
         [HttpGet]
         [Route("api/ConsultUsers")]
@@ -262,10 +257,75 @@ namespace API_FlorecerApp.Controllers
         }
 
 
+        //[HttpPost]
+        //[Route("api/ActivateAccount/{token}")]
+        //[AllowAnonymous]
+        //public IHttpActionResult ActivateAccount(string token)
+        //{
+        //    using (var bd = new FlorecerAppEntities())
+        //    {
+        //        var user = bd.Users.SingleOrDefault(x => x.ActivationToken == token && x.TokenExpiration > DateTime.Now);
+
+        //        if (user != null)
+        //        {
+        //            user.Status = true;
+        //            user.ActivationToken = null;
+        //            bd.SaveChanges();
+        //            return Ok("La cuenta ha sido activada exitosamente.");
+        //        }
+
+        //        return BadRequest("El token de activación no es válido o ha expirado.");
+        //    }
+        //}
+
+        //[HttpPost]
+        //[Route("api/ForgotPassword")]
+        //[AllowAnonymous]
+        //public IHttpActionResult ForgotPassword(string email)
+        //{
+        //    using (var bd = new FlorecerAppEntities())
+        //    {
+        //        var user = bd.Users.SingleOrDefault(x => x.Email == email && x.Status == true);
+
+        //        if (user != null)
+        //        {
+        //            string recoveryToken = GenerateUniqueToken();
+        //            user.RecoveryToken = recoveryToken;
+        //            user.TokenExpiration = DateTime.Now.AddHours(1);
+
+        //            bd.SaveChanges();
 
 
+        //            SendRecoveryEmail(email, recoveryToken);
 
+        //            return Ok("Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña.");
+        //        }
 
+        //        return BadRequest("El correo electrónico no está registrado o la cuenta está inactiva.");
+        //    }
+        //}
+
+        //[HttpPost]
+        //[Route("api/ResetPassword")]
+        //[AllowAnonymous]
+        //public IHttpActionResult ResetPassword(string email, string recoveryToken, string newPassword)
+        //{
+        //    using (var bd = new FlorecerAppEntities())
+        //    {
+        //        var user = bd.Users.SingleOrDefault(x => x.Email == email && x.RecoveryToken == recoveryToken && x.TokenExpiration > DateTime.Now);
+
+        //        if (user != null)
+        //        {
+        //            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword); // Cambia la contraseña
+        //            user.RecoveryToken = null; // Elimina el token
+        //            bd.SaveChanges();
+        //            return Ok("La contraseña ha sido restablecida con éxito.");
+        //        }
+
+        //        return BadRequest("El token de recuperación no es válido o ha expirado.");
+        //    }
+
+        //}
     }
 }
 

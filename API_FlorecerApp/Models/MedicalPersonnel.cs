@@ -17,17 +17,15 @@ namespace API_FlorecerApp.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public MedicalPersonnel()
         {
-            this.Appointments = new HashSet<Appointments>();
             this.TestResults = new HashSet<TestResults>();
         }
     
         public long PersonnelId { get; set; }
         public string Name { get; set; }
         public string LastName { get; set; }
-        public Nullable<long> SpecialtyId { get; set; }
+        public string Specialization { get; set; }
+        public string Bio { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Appointments> Appointments { get; set; }
         public virtual Specialties Specialties { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TestResults> TestResults { get; set; }
