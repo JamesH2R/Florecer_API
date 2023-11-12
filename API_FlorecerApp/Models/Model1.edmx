@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="FlorecerAppModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="FlorecerAppModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Appointments">
           <Key>
             <PropertyRef Name="AppointmentId" />
@@ -38,10 +38,11 @@
           <Key>
             <PropertyRef Name="TestId" />
           </Key>
-          <Property Name="TestId" Type="bigint" Nullable="false" />
-          <Property Name="TestName" Type="nvarchar" MaxLength="100" />
-          <Property Name="Description" Type="nvarchar(max)" />
-          <Property Name="TestType" Type="nvarchar" MaxLength="50" />
+          <Property Name="TestId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="bigint" Nullable="false" />
+          <Property Name="FileName" Type="nvarchar" MaxLength="100" />
+          <Property Name="FilePath" Type="nvarchar(max)" />
+          <Property Name="Date" Type="datetime" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -49,6 +50,7 @@
           </Key>
           <Property Name="RoleId" Type="bigint" Nullable="false" />
           <Property Name="RoleName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Status" Type="bit" />
         </EntityType>
         <EntityType Name="Specialties">
           <Key>
@@ -142,7 +144,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TestResul__TestI__02FC7413">
+        <Association Name="FK__TestResul__TestI__5BE2A6F2">
           <End Role="MedicalTests" Type="Self.MedicalTests" Multiplicity="0..1" />
           <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
           <ReferentialConstraint>
@@ -163,6 +165,18 @@
             </Principal>
             <Dependent Role="Users">
               <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MedicalTests_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="MedicalTests" Type="Self.MedicalTests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="MedicalTests">
+              <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -195,7 +209,7 @@
             <End Role="MedicalPersonnel" EntitySet="MedicalPersonnel" />
             <End Role="TestResults" EntitySet="TestResults" />
           </AssociationSet>
-          <AssociationSet Name="FK__TestResul__TestI__02FC7413" Association="Self.FK__TestResul__TestI__02FC7413">
+          <AssociationSet Name="FK__TestResul__TestI__5BE2A6F2" Association="Self.FK__TestResul__TestI__5BE2A6F2">
             <End Role="MedicalTests" EntitySet="MedicalTests" />
             <End Role="TestResults" EntitySet="TestResults" />
           </AssociationSet>
@@ -203,8 +217,13 @@
             <End Role="Roles" EntitySet="Roles" />
             <End Role="Users" EntitySet="Users" />
           </AssociationSet>
+          <AssociationSet Name="FK_MedicalTests_Users" Association="Self.FK_MedicalTests_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="MedicalTests" EntitySet="MedicalTests" />
+          </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="FlorecerAppModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -216,8 +235,8 @@
           <Property Name="PatientId" Type="Int64" Nullable="false" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="Hour" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="Users" Relationship="Self.FK__Appointme__Patie__403A8C7D" FromRole="Appointments" ToRole="Users" />
           <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Users" Relationship="Self.FK__Appointme__Patie__403A8C7D" FromRole="Appointments" ToRole="Users" />
         </EntityType>
         <EntityType Name="Binnacle">
           <Key>
@@ -245,11 +264,13 @@
           <Key>
             <PropertyRef Name="TestId" />
           </Key>
-          <Property Name="TestId" Type="Int64" Nullable="false" />
-          <Property Name="TestName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="TestType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="TestResults" Relationship="Self.FK__TestResul__TestI__02FC7413" FromRole="MedicalTests" ToRole="TestResults" />
+          <Property Name="TestId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int64" Nullable="false" />
+          <Property Name="FileName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="FilePath" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="TestResults" Relationship="Self.FK__TestResul__TestI__5BE2A6F2" FromRole="MedicalTests" ToRole="TestResults" />
+          <NavigationProperty Name="Users" Relationship="Self.FK_MedicalTests_Users" FromRole="MedicalTests" ToRole="Users" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -257,6 +278,7 @@
           </Key>
           <Property Name="RoleId" Type="Int64" Nullable="false" />
           <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="Boolean" />
           <NavigationProperty Name="Users" Relationship="Self.FK__Users__RoleId__38996AB5" FromRole="Roles" ToRole="Users" />
         </EntityType>
         <EntityType Name="Specialties">
@@ -278,7 +300,7 @@
           <Property Name="Date" Type="DateTime" Precision="3" />
           <Property Name="Score" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="MedicalPersonnel" Relationship="Self.FK__TestResul__Perso__02084FDA" FromRole="TestResults" ToRole="MedicalPersonnel" />
-          <NavigationProperty Name="MedicalTests" Relationship="Self.FK__TestResul__TestI__02FC7413" FromRole="TestResults" ToRole="MedicalTests" />
+          <NavigationProperty Name="MedicalTests" Relationship="Self.FK__TestResul__TestI__5BE2A6F2" FromRole="TestResults" ToRole="MedicalTests" />
           <NavigationProperty Name="Users" Relationship="Self.FK__TestResul__Patie__45F365D3" FromRole="TestResults" ToRole="Users" />
         </EntityType>
         <EntityType Name="Users">
@@ -296,6 +318,7 @@
           <Property Name="Expiration" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Appointments" Relationship="Self.FK__Appointme__Patie__403A8C7D" FromRole="Users" ToRole="Appointments" />
           <NavigationProperty Name="Binnacle" Relationship="Self.FK__Binnacle__UserId__4AB81AF0" FromRole="Users" ToRole="Binnacle" />
+          <NavigationProperty Name="MedicalTests" Relationship="Self.FK_MedicalTests_Users" FromRole="Users" ToRole="MedicalTests" />
           <NavigationProperty Name="Roles" Relationship="Self.FK__Users__RoleId__38996AB5" FromRole="Users" ToRole="Roles" />
           <NavigationProperty Name="TestResults" Relationship="Self.FK__TestResul__Patie__45F365D3" FromRole="Users" ToRole="TestResults" />
         </EntityType>
@@ -347,7 +370,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TestResul__TestI__02FC7413">
+        <Association Name="FK__TestResul__TestI__5BE2A6F2">
           <End Role="MedicalTests" Type="Self.MedicalTests" Multiplicity="0..1" />
           <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
           <ReferentialConstraint>
@@ -356,6 +379,18 @@
             </Principal>
             <Dependent Role="TestResults">
               <PropertyRef Name="TestId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MedicalTests_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="MedicalTests" Type="Self.MedicalTests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="MedicalTests">
+              <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -408,9 +443,13 @@
             <End Role="MedicalPersonnel" EntitySet="MedicalPersonnel" />
             <End Role="TestResults" EntitySet="TestResults" />
           </AssociationSet>
-          <AssociationSet Name="FK__TestResul__TestI__02FC7413" Association="Self.FK__TestResul__TestI__02FC7413">
+          <AssociationSet Name="FK__TestResul__TestI__5BE2A6F2" Association="Self.FK__TestResul__TestI__5BE2A6F2">
             <End Role="MedicalTests" EntitySet="MedicalTests" />
             <End Role="TestResults" EntitySet="TestResults" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MedicalTests_Users" Association="Self.FK_MedicalTests_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="MedicalTests" EntitySet="MedicalTests" />
           </AssociationSet>
           <AssociationSet Name="FK__Users__RoleId__38996AB5" Association="Self.FK__Users__RoleId__38996AB5">
             <End Role="Roles" EntitySet="Roles" />
@@ -430,11 +469,11 @@
           <EntitySetMapping Name="Appointments">
             <EntityTypeMapping TypeName="FlorecerAppModel.Appointments">
               <MappingFragment StoreEntitySet="Appointments">
-                <ScalarProperty Name="Notes" ColumnName="Notes" />
                 <ScalarProperty Name="AppointmentId" ColumnName="AppointmentId" />
                 <ScalarProperty Name="PatientId" ColumnName="PatientId" />
                 <ScalarProperty Name="Date" ColumnName="Date" />
                 <ScalarProperty Name="Hour" ColumnName="Hour" />
+                <ScalarProperty Name="Notes" ColumnName="Notes" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -463,9 +502,10 @@
             <EntityTypeMapping TypeName="FlorecerAppModel.MedicalTests">
               <MappingFragment StoreEntitySet="MedicalTests">
                 <ScalarProperty Name="TestId" ColumnName="TestId" />
-                <ScalarProperty Name="TestName" ColumnName="TestName" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="TestType" ColumnName="TestType" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="FileName" ColumnName="FileName" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -474,6 +514,7 @@
               <MappingFragment StoreEntitySet="Roles">
                 <ScalarProperty Name="RoleId" ColumnName="RoleId" />
                 <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -529,7 +570,7 @@
         <DesignerProperty Name="EnablePluralization" Value="false" />
         <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
         <DesignerProperty Name="UseLegacyProvider" Value="false" />
-        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
       </DesignerInfoPropertySet>
     </Options>
     <!-- Diagram content (shape and connector positions) -->

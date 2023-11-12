@@ -19,6 +19,7 @@ namespace API_FlorecerApp.Models
         {
             this.Appointments = new HashSet<Appointments>();
             this.Binnacle = new HashSet<Binnacle>();
+            this.MedicalTests = new HashSet<MedicalTests>();
             this.TestResults = new HashSet<TestResults>();
         }
     
@@ -36,6 +37,8 @@ namespace API_FlorecerApp.Models
         public virtual ICollection<Appointments> Appointments { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Binnacle> Binnacle { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MedicalTests> MedicalTests { get; set; }
         public virtual Roles Roles { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TestResults> TestResults { get; set; }
