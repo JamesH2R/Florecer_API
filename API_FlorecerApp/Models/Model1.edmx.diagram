@@ -4,15 +4,15 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="f2a405b38395480b8cc53ef1553e428a" Name="Diagram1">
-        <EntityTypeShape EntityType="FlorecerAppModel.Appointments" Width="1.5" PointX="5.25" PointY="4" IsExpanded="true" />
-        <EntityTypeShape EntityType="FlorecerAppModel.Binnacle" Width="1.5" PointX="5.25" PointY="6.625" IsExpanded="true" />
+      <Diagram DiagramId="841f647f381a4ff79b9f1c2c00bd3524" Name="Diagram1">
+        <EntityTypeShape EntityType="FlorecerAppModel.Appointment" Width="1.5" PointX="5.25" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="FlorecerAppModel.Binnacle" Width="1.5" PointX="5.25" PointY="7.75" IsExpanded="true" />
         <EntityTypeShape EntityType="FlorecerAppModel.MedicalPersonnel" Width="1.5" PointX="6" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="FlorecerAppModel.MedicalTests" Width="1.5" PointX="6" PointY="9.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="FlorecerAppModel.Roles" Width="1.5" PointX="0.75" PointY="5.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="FlorecerAppModel.Specialties" Width="1.5" PointX="3.75" PointY="1.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="FlorecerAppModel.TestResults" Width="1.5" PointX="8.25" PointY="4.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="FlorecerAppModel.Users" Width="1.5" PointX="3" PointY="4.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="FlorecerAppModel.MedicalTest" Width="1.5" PointX="6" PointY="10.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="FlorecerAppModel.Role" Width="1.5" PointX="0.75" PointY="6.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="FlorecerAppModel.Specialty" Width="1.5" PointX="3.75" PointY="2.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="FlorecerAppModel.TestResult" Width="1.5" PointX="8.25" PointY="5.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="FlorecerAppModel.User" Width="1.5" PointX="3" PointY="5.5" IsExpanded="true" />
         <AssociationConnector Association="FlorecerAppModel.FK__Appointme__Patie__403A8C7D" ManuallyRouted="false" />
         <AssociationConnector Association="FlorecerAppModel.FK__Binnacle__UserId__4AB81AF0" ManuallyRouted="false" />
         <AssociationConnector Association="FlorecerAppModel.FK__MedicalPe__Speci__00200768" ManuallyRouted="false" />

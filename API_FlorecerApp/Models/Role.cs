@@ -12,13 +12,18 @@ namespace API_FlorecerApp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Binnacle
+    public partial class Role
     {
-        public long BinnacleId { get; set; }
-        public Nullable<long> UserId { get; set; }
-        public string PerformedAction { get; set; }
-        public Nullable<System.DateTime> OccurrencyDate { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Role()
+        {
+            this.Users = new HashSet<User>();
+        }
     
-        public virtual User User { get; set; }
+        public long RoleId { get; set; }
+        public string RoleName { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<User> Users { get; set; }
     }
 }
