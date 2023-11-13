@@ -8,8 +8,9 @@ namespace API_FlorecerApp.Entities
     public class MedicalTestsEnt
     {
         public long TestId { get; set; }
-        public string TestName { get; set; }
-        public string Description { get; set; }
-        public string TestType { get; set; }
+        public long UserId { get; set; }
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
+        public DateTime Date { get; set; }
     }
 }
