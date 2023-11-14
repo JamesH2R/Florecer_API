@@ -63,12 +63,10 @@
           <Key>
             <PropertyRef Name="ResultId" />
           </Key>
-          <Property Name="ResultId" Type="bigint" Nullable="false" />
-          <Property Name="PatientId" Type="bigint" />
-          <Property Name="PersonnelId" Type="bigint" />
-          <Property Name="TestId" Type="bigint" />
+          <Property Name="ResultId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RoleId" Type="bigint" />
+          <Property Name="FilePath" Type="nvarchar(max)" />
           <Property Name="Date" Type="datetime" />
-          <Property Name="Score" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
@@ -120,42 +118,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TestResul__Patie__45F365D3">
-          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
-          <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="UserId" />
-            </Principal>
-            <Dependent Role="TestResults">
-              <PropertyRef Name="PatientId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__TestResul__Perso__02084FDA">
-          <End Role="MedicalPersonnel" Type="Self.MedicalPersonnel" Multiplicity="0..1" />
-          <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MedicalPersonnel">
-              <PropertyRef Name="PersonnelId" />
-            </Principal>
-            <Dependent Role="TestResults">
-              <PropertyRef Name="PersonnelId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__TestResul__TestI__5BE2A6F2">
-          <End Role="MedicalTests" Type="Self.MedicalTests" Multiplicity="0..1" />
-          <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MedicalTests">
-              <PropertyRef Name="TestId" />
-            </Principal>
-            <Dependent Role="TestResults">
-              <PropertyRef Name="TestId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK__Users__RoleId__38996AB5">
           <End Role="Roles" Type="Self.Roles" Multiplicity="1" />
           <End Role="Users" Type="Self.Users" Multiplicity="*" />
@@ -180,6 +142,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_TestResul_Roles">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
+          <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
+            </Principal>
+            <Dependent Role="TestResults">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="FlorecerAppModelStoreContainer">
           <EntitySet Name="Appointments" EntityType="Self.Appointments" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Binnacle" EntityType="Self.Binnacle" Schema="dbo" store:Type="Tables" />
@@ -201,18 +175,6 @@
             <End Role="Specialties" EntitySet="Specialties" />
             <End Role="MedicalPersonnel" EntitySet="MedicalPersonnel" />
           </AssociationSet>
-          <AssociationSet Name="FK__TestResul__Patie__45F365D3" Association="Self.FK__TestResul__Patie__45F365D3">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="TestResults" EntitySet="TestResults" />
-          </AssociationSet>
-          <AssociationSet Name="FK__TestResul__Perso__02084FDA" Association="Self.FK__TestResul__Perso__02084FDA">
-            <End Role="MedicalPersonnel" EntitySet="MedicalPersonnel" />
-            <End Role="TestResults" EntitySet="TestResults" />
-          </AssociationSet>
-          <AssociationSet Name="FK__TestResul__TestI__5BE2A6F2" Association="Self.FK__TestResul__TestI__5BE2A6F2">
-            <End Role="MedicalTests" EntitySet="MedicalTests" />
-            <End Role="TestResults" EntitySet="TestResults" />
-          </AssociationSet>
           <AssociationSet Name="FK__Users__RoleId__38996AB5" Association="Self.FK__Users__RoleId__38996AB5">
             <End Role="Roles" EntitySet="Roles" />
             <End Role="Users" EntitySet="Users" />
@@ -220,6 +182,10 @@
           <AssociationSet Name="FK_MedicalTests_Users" Association="Self.FK_MedicalTests_Users">
             <End Role="Users" EntitySet="Users" />
             <End Role="MedicalTests" EntitySet="MedicalTests" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TestResul_Roles" Association="Self.FK_TestResul_Roles">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="TestResults" EntitySet="TestResults" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
@@ -258,7 +224,6 @@
           <Property Name="Specialization" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Bio" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Specialties" Relationship="Self.FK__MedicalPe__Speci__00200768" FromRole="MedicalPersonnel" ToRole="Specialties" />
-          <NavigationProperty Name="TestResults" Relationship="Self.FK__TestResul__Perso__02084FDA" FromRole="MedicalPersonnel" ToRole="TestResults" />
         </EntityType>
         <EntityType Name="MedicalTests">
           <Key>
@@ -269,7 +234,6 @@
           <Property Name="FileName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="FilePath" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Date" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="TestResults" Relationship="Self.FK__TestResul__TestI__5BE2A6F2" FromRole="MedicalTests" ToRole="TestResults" />
           <NavigationProperty Name="Users" Relationship="Self.FK_MedicalTests_Users" FromRole="MedicalTests" ToRole="Users" />
         </EntityType>
         <EntityType Name="Roles">
@@ -280,6 +244,7 @@
           <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Status" Type="Boolean" />
           <NavigationProperty Name="Users" Relationship="Self.FK__Users__RoleId__38996AB5" FromRole="Roles" ToRole="Users" />
+          <NavigationProperty Name="TestResults" Relationship="Self.FK_TestResul_Roles" FromRole="Roles" ToRole="TestResults" />
         </EntityType>
         <EntityType Name="Specialties">
           <Key>
@@ -293,15 +258,11 @@
           <Key>
             <PropertyRef Name="ResultId" />
           </Key>
-          <Property Name="ResultId" Type="Int64" Nullable="false" />
-          <Property Name="PatientId" Type="Int64" />
-          <Property Name="PersonnelId" Type="Int64" />
-          <Property Name="TestId" Type="Int64" />
+          <Property Name="ResultId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RoleId" Type="Int64" />
+          <Property Name="FilePath" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Date" Type="DateTime" Precision="3" />
-          <Property Name="Score" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="MedicalPersonnel" Relationship="Self.FK__TestResul__Perso__02084FDA" FromRole="TestResults" ToRole="MedicalPersonnel" />
-          <NavigationProperty Name="MedicalTests" Relationship="Self.FK__TestResul__TestI__5BE2A6F2" FromRole="TestResults" ToRole="MedicalTests" />
-          <NavigationProperty Name="Users" Relationship="Self.FK__TestResul__Patie__45F365D3" FromRole="TestResults" ToRole="Users" />
+          <NavigationProperty Name="Roles" Relationship="Self.FK_TestResul_Roles" FromRole="TestResults" ToRole="Roles" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
@@ -320,7 +281,6 @@
           <NavigationProperty Name="Binnacle" Relationship="Self.FK__Binnacle__UserId__4AB81AF0" FromRole="Users" ToRole="Binnacle" />
           <NavigationProperty Name="MedicalTests" Relationship="Self.FK_MedicalTests_Users" FromRole="Users" ToRole="MedicalTests" />
           <NavigationProperty Name="Roles" Relationship="Self.FK__Users__RoleId__38996AB5" FromRole="Users" ToRole="Roles" />
-          <NavigationProperty Name="TestResults" Relationship="Self.FK__TestResul__Patie__45F365D3" FromRole="Users" ToRole="TestResults" />
         </EntityType>
         <Association Name="FK__Appointme__Patie__403A8C7D">
           <End Role="Users" Type="Self.Users" Multiplicity="1" />
@@ -358,30 +318,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TestResul__Perso__02084FDA">
-          <End Role="MedicalPersonnel" Type="Self.MedicalPersonnel" Multiplicity="0..1" />
-          <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MedicalPersonnel">
-              <PropertyRef Name="PersonnelId" />
-            </Principal>
-            <Dependent Role="TestResults">
-              <PropertyRef Name="PersonnelId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__TestResul__TestI__5BE2A6F2">
-          <End Role="MedicalTests" Type="Self.MedicalTests" Multiplicity="0..1" />
-          <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MedicalTests">
-              <PropertyRef Name="TestId" />
-            </Principal>
-            <Dependent Role="TestResults">
-              <PropertyRef Name="TestId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_MedicalTests_Users">
           <End Role="Users" Type="Self.Users" Multiplicity="1" />
           <End Role="MedicalTests" Type="Self.MedicalTests" Multiplicity="*" />
@@ -406,15 +342,15 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TestResul__Patie__45F365D3">
-          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+        <Association Name="FK_TestResul_Roles">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
           <End Role="TestResults" Type="Self.TestResults" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="UserId" />
+            <Principal Role="Roles">
+              <PropertyRef Name="RoleId" />
             </Principal>
             <Dependent Role="TestResults">
-              <PropertyRef Name="PatientId" />
+              <PropertyRef Name="RoleId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -439,14 +375,6 @@
             <End Role="Specialties" EntitySet="Specialties" />
             <End Role="MedicalPersonnel" EntitySet="MedicalPersonnel" />
           </AssociationSet>
-          <AssociationSet Name="FK__TestResul__Perso__02084FDA" Association="Self.FK__TestResul__Perso__02084FDA">
-            <End Role="MedicalPersonnel" EntitySet="MedicalPersonnel" />
-            <End Role="TestResults" EntitySet="TestResults" />
-          </AssociationSet>
-          <AssociationSet Name="FK__TestResul__TestI__5BE2A6F2" Association="Self.FK__TestResul__TestI__5BE2A6F2">
-            <End Role="MedicalTests" EntitySet="MedicalTests" />
-            <End Role="TestResults" EntitySet="TestResults" />
-          </AssociationSet>
           <AssociationSet Name="FK_MedicalTests_Users" Association="Self.FK_MedicalTests_Users">
             <End Role="Users" EntitySet="Users" />
             <End Role="MedicalTests" EntitySet="MedicalTests" />
@@ -455,8 +383,8 @@
             <End Role="Roles" EntitySet="Roles" />
             <End Role="Users" EntitySet="Users" />
           </AssociationSet>
-          <AssociationSet Name="FK__TestResul__Patie__45F365D3" Association="Self.FK__TestResul__Patie__45F365D3">
-            <End Role="Users" EntitySet="Users" />
+          <AssociationSet Name="FK_TestResul_Roles" Association="Self.FK_TestResul_Roles">
+            <End Role="Roles" EntitySet="Roles" />
             <End Role="TestResults" EntitySet="TestResults" />
           </AssociationSet>
         </EntityContainer>
@@ -530,11 +458,9 @@
             <EntityTypeMapping TypeName="FlorecerAppModel.TestResults">
               <MappingFragment StoreEntitySet="TestResults">
                 <ScalarProperty Name="ResultId" ColumnName="ResultId" />
-                <ScalarProperty Name="PatientId" ColumnName="PatientId" />
-                <ScalarProperty Name="PersonnelId" ColumnName="PersonnelId" />
-                <ScalarProperty Name="TestId" ColumnName="TestId" />
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="FilePath" ColumnName="FilePath" />
                 <ScalarProperty Name="Date" ColumnName="Date" />
-                <ScalarProperty Name="Score" ColumnName="Score" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

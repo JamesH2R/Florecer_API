@@ -14,20 +14,12 @@ namespace API_FlorecerApp.Models
     
     public partial class MedicalTests
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public MedicalTests()
-        {
-            this.TestResults = new HashSet<TestResults>();
-        }
-    
         public long TestId { get; set; }
         public long UserId { get; set; }
         public string FileName { get; set; }
         public string FilePath { get; set; }
         public Nullable<System.DateTime> Date { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TestResults> TestResults { get; set; }
         public virtual Users Users { get; set; }
     }
 }
