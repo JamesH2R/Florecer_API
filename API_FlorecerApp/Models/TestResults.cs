@@ -12,13 +12,13 @@ namespace API_FlorecerApp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Binnacle
+    public partial class TestResults
     {
-        public long BinnacleId { get; set; }
-        public Nullable<long> UserId { get; set; }
-        public string PerformedAction { get; set; }
-        public Nullable<System.DateTime> OccurrencyDate { get; set; }
+        public long ResultId { get; set; }
+        public Nullable<long> RoleId { get; set; }
+        public string FilePath { get; set; }
+        public Nullable<System.DateTime> Date { get; set; }
     
-        public virtual Users Users { get; set; }
+        public virtual Roles Roles { get; set; }
     }
 }
