@@ -22,6 +22,5 @@ namespace API_FlorecerApp.Entities
 
         public bool Status { get; set; }
 
-        public List<AppointmentUser> Appointments { get; set; } = new List<AppointmentUser>();
     }
 }

@@ -10,10 +10,10 @@
             <PropertyRef Name="AppointmentId" />
           </Key>
           <Property Name="AppointmentId" Type="bigint" Nullable="false" />
-          <Property Name="PatientId" Type="bigint" Nullable="false" />
           <Property Name="Date" Type="date" Nullable="false" />
           <Property Name="Hour" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="Notes" Type="nvarchar(max)" />
+          <Property Name="Available" Type="bit" Nullable="false" />
+          <Property Name="UserId" Type="bigint" />
         </EntityType>
         <EntityType Name="Binnacle">
           <Key>
@@ -82,18 +82,6 @@
           <Property Name="TemporalKey" Type="bit" />
           <Property Name="Expiration" Type="datetime" />
         </EntityType>
-        <Association Name="FK__Appointme__Patie__403A8C7D">
-          <End Role="Users" Type="Self.Users" Multiplicity="1" />
-          <End Role="Appointments" Type="Self.Appointments" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="UserId" />
-            </Principal>
-            <Dependent Role="Appointments">
-              <PropertyRef Name="PatientId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK__Binnacle__UserId__4AB81AF0">
           <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
           <End Role="Binnacle" Type="Self.Binnacle" Multiplicity="*" />
@@ -130,6 +118,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Appointments_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Appointments" Type="Self.Appointments" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Appointments">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_MedicalTests_Users">
           <End Role="Users" Type="Self.Users" Multiplicity="1" />
           <End Role="MedicalTests" Type="Self.MedicalTests" Multiplicity="*" />
@@ -163,10 +163,6 @@
           <EntitySet Name="Specialties" EntityType="Self.Specialties" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TestResults" EntityType="Self.TestResults" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__Appointme__Patie__403A8C7D" Association="Self.FK__Appointme__Patie__403A8C7D">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="Appointments" EntitySet="Appointments" />
-          </AssociationSet>
           <AssociationSet Name="FK__Binnacle__UserId__4AB81AF0" Association="Self.FK__Binnacle__UserId__4AB81AF0">
             <End Role="Users" EntitySet="Users" />
             <End Role="Binnacle" EntitySet="Binnacle" />
@@ -178,6 +174,10 @@
           <AssociationSet Name="FK__Users__RoleId__38996AB5" Association="Self.FK__Users__RoleId__38996AB5">
             <End Role="Roles" EntitySet="Roles" />
             <End Role="Users" EntitySet="Users" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Appointments_Users" Association="Self.FK_Appointments_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Appointments" EntitySet="Appointments" />
           </AssociationSet>
           <AssociationSet Name="FK_MedicalTests_Users" Association="Self.FK_MedicalTests_Users">
             <End Role="Users" EntitySet="Users" />
@@ -198,11 +198,11 @@
             <PropertyRef Name="AppointmentId" />
           </Key>
           <Property Name="AppointmentId" Type="Int64" Nullable="false" />
-          <Property Name="PatientId" Type="Int64" Nullable="false" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="Hour" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Users" Relationship="Self.FK__Appointme__Patie__403A8C7D" FromRole="Appointments" ToRole="Users" />
+          <Property Name="Available" Type="Boolean" Nullable="false" />
+          <Property Name="UserId" Type="Int64" />
+          <NavigationProperty Name="Users" Relationship="Self.FK_Appointments_Users" FromRole="Appointments" ToRole="Users" />
         </EntityType>
         <EntityType Name="Binnacle">
           <Key>
@@ -277,20 +277,20 @@
           <Property Name="Status" Type="Boolean" Nullable="false" />
           <Property Name="TemporalKey" Type="Boolean" />
           <Property Name="Expiration" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="Appointments" Relationship="Self.FK__Appointme__Patie__403A8C7D" FromRole="Users" ToRole="Appointments" />
+          <NavigationProperty Name="Appointments" Relationship="Self.FK_Appointments_Users" FromRole="Users" ToRole="Appointments" />
           <NavigationProperty Name="Binnacle" Relationship="Self.FK__Binnacle__UserId__4AB81AF0" FromRole="Users" ToRole="Binnacle" />
           <NavigationProperty Name="MedicalTests" Relationship="Self.FK_MedicalTests_Users" FromRole="Users" ToRole="MedicalTests" />
           <NavigationProperty Name="Roles" Relationship="Self.FK__Users__RoleId__38996AB5" FromRole="Users" ToRole="Roles" />
         </EntityType>
-        <Association Name="FK__Appointme__Patie__403A8C7D">
-          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+        <Association Name="FK_Appointments_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
           <End Role="Appointments" Type="Self.Appointments" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Users">
               <PropertyRef Name="UserId" />
             </Principal>
             <Dependent Role="Appointments">
-              <PropertyRef Name="PatientId" />
+              <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -363,7 +363,7 @@
           <EntitySet Name="Specialties" EntityType="Self.Specialties" />
           <EntitySet Name="TestResults" EntityType="Self.TestResults" />
           <EntitySet Name="Users" EntityType="Self.Users" />
-          <AssociationSet Name="FK__Appointme__Patie__403A8C7D" Association="Self.FK__Appointme__Patie__403A8C7D">
+          <AssociationSet Name="FK_Appointments_Users" Association="Self.FK_Appointments_Users">
             <End Role="Users" EntitySet="Users" />
             <End Role="Appointments" EntitySet="Appointments" />
           </AssociationSet>
@@ -398,10 +398,10 @@
             <EntityTypeMapping TypeName="FlorecerAppModel.Appointments">
               <MappingFragment StoreEntitySet="Appointments">
                 <ScalarProperty Name="AppointmentId" ColumnName="AppointmentId" />
-                <ScalarProperty Name="PatientId" ColumnName="PatientId" />
                 <ScalarProperty Name="Date" ColumnName="Date" />
                 <ScalarProperty Name="Hour" ColumnName="Hour" />
-                <ScalarProperty Name="Notes" ColumnName="Notes" />
+                <ScalarProperty Name="Available" ColumnName="Available" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
