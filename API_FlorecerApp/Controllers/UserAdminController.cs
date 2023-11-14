@@ -15,7 +15,7 @@ namespace API_FlorecerApp.Controllers
 
         [HttpGet]
         [Route("api/UserConsultation")]
-        public List<UsersEnt> UserConsultation()
+        public List<UsersEnt> UserConsultation(long userId)
         {
             using (var bd = new FlorecerAppEntities())
             {

@@ -12,40 +12,99 @@ namespace API_FlorecerApp.Controllers
     public class AppointmentController : ApiController
     {
 
-        [HttpPost]
-        [Route("api/NewAppointment")]
-        [AllowAnonymous]
-        public IHttpActionResult NewAppointment(AppoimentsEnt entidad)
+        [HttpGet]
+        [Route("api/Appointments")]
+        public IHttpActionResult Appointments()
         {
+
             using (var bd = new FlorecerAppEntities())
             {
-                if (entidad == null)
+                using (var transaction = bd.Database.BeginTransaction())
                 {
-                    return BadRequest("La cita es nula");
-                }
-
-                try
-                {
-
-                    Appointments newAppointment = new Appointments
+                    try
                     {
-                        AppointmentId = entidad.AppoimentId,
-                        PatientId = entidad.PatientId,
-                        Date = entidad.Date,
-                        Hour = entidad.Hour,
-                        Notes = entidad.Notes
-                    };
-
-                    bd.Appointments.Add(newAppointment);
-                    bd.SaveChanges();
-                    return Ok("Cita creada con éxito");
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        FreePastAppointments(bd);
+                        var appointments = bd.Appointments.ToList();
+                        transaction.Commit();
+                        return Ok(appointments);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return InternalServerError(ex);
+                    }
                 }
             }
         }
+
+        //[HttpPost]
+        //[Route("api/SetAppointment/{appointmentId}")]
+        //public IHttpActionResult SetAppointment(int appointmentId)
+        //{
+
+        //    using (var bd = new FlorecerAppEntities())
+        //    {
+        //        try
+        //        {
+
+        //            var appointment = bd.Appointments.Find(appointmentId);
+
+        //            if (appointment != null)
+        //            {
+        //                // Marcar la cita como reservada (ajusta según tu modelo)
+        //                appointment.Available = true;
+
+        //                bd.Appointments.Add(new AppoimentsEnt
+        //                {
+        //                    UserId = ,
+        //                    AppointmentId = appointmentId
+        //                });
+
+        //                // Guardar los cambios en la base de datos
+        //                bd.SaveChanges();
+
+        //                return Ok("Cita reservada exitosamente.");
+        //            }
+        //            else
+        //            {
+        //                return NotFound();
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            return InternalServerError(ex);
+        //        }
+        //    }
+        //}
+
+
+        [HttpPost]
+        private IHttpActionResult FreePastAppointments(FlorecerAppEntities bd)
+        {
+            try
+            {
+
+                    var actualDate = DateTime.UtcNow;
+
+                    var pastAppointments = bd.Appointments.Where(c => c.Date < actualDate && !c.Available);
+
+                    foreach (var schedule in pastAppointments)
+                    {
+                        schedule.Available = true;
+                    }
+
+                    bd.SaveChanges();
+
+                    return Ok();
+                
+                    
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
     }
 }

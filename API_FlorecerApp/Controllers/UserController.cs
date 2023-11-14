@@ -46,7 +46,7 @@ namespace API_FlorecerApp.Controllers
                         resp.LastName = user.LastName;
                         resp.Status = user.Status;
                         resp.RoleId = user.RoleId;
-                        resp.RoleName = user.Roles.RoleName;
+                        resp.RoleName = user.Role.RoleName;
                         resp.UserId = user.UserId;
                         resp.Token = tok.GenerateTokenJwt(user.UserId);
                         return Ok(resp);
@@ -70,7 +70,7 @@ namespace API_FlorecerApp.Controllers
                     return BadRequest("El correo ya está registrado.");
                 }
 
-                Users table = new Users();
+                User table = new User();
                 table.Email = entidad.Email;
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(entidad.Password);
                 table.Password = hashedPassword;
