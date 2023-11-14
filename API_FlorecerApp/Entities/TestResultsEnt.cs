@@ -8,10 +8,8 @@ namespace API_FlorecerApp.Entities
     public class TestResultsEnt
     {
         public long ResultId { get; set; }
-        public long PatientId { get; set; }
-        public long PersonnelId { get; set; }
-        public long TestId { get; set; }
+        public long RoleId { get; set; }
+        public string FilePath { get; set; }
         public DateTime Date { get; set; }
-        public string Score { get; set; }
     }
 }

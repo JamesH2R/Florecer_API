@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
 using API_FlorecerApp.Entities;
@@ -14,7 +16,7 @@ namespace API_FlorecerApp.Controllers
 {
     public class TestController : ApiController
     {
-        //Método Rol Admin
+        //Métodos Rol ADMIN
 
         //[HttpPost]
         //[Route("api/AssignEvaluation")]
@@ -60,6 +62,121 @@ namespace API_FlorecerApp.Controllers
         //    }
 
         //}
+
+
+        //Métodos Rol USUARIO
+
+        [HttpGet]
+        [Route("api/DownloadEvaluation/{userId}")]
+        public IHttpActionResult DownloadEvaluation(long userId)
+        {
+            try
+            {
+                using (var context = new FlorecerAppEntities())
+                {
+                    // Obtener evaluaciones del usuario
+                    var evaluations = context.MedicalTests
+                        .Where(mt => mt.UserId == userId)
+                        .ToList();
+
+                    if (evaluations.Count == 0)
+                    {
+                        return NotFound(); // No hay evaluaciones asignadas para este usuario
+                    }
+
+                    // Crear un archivo ZIP para contener los archivos de evaluación
+                    var zipFileName = $"Evaluations_{userId}.zip";
+                    var zipFilePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), zipFileName);
+
+                    // Utilizar System.IO.Compression.ZipFile para crear el archivo ZIP
+                    using (var archive = ZipFile.Open(zipFilePath, ZipArchiveMode.Create))
+                    {
+                        foreach (var evaluation in evaluations)
+                        {
+                            // Agregar cada archivo de evaluación al archivo ZIP
+                            var entry = archive.CreateEntry(evaluation.FileName);
+                            using (var entryStream = entry.Open())
+                            using (var fileStream = File.OpenRead(evaluation.FilePath))
+                            {
+                                fileStream.CopyTo(entryStream);
+                            }
+                        }
+                    }
+
+                    // Devolver el archivo ZIP al cliente
+                    var fileBytes = File.ReadAllBytes(zipFilePath);
+                    var response = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent(fileBytes)
+                    };
+                    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = zipFileName
+                    };
+
+                    // Después de Devolver el Archivo ZIP al Cliente
+                    //File.Delete(zipFilePath);
+
+                    return ResponseMessage(response);
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, $"Error al acceder al archivo: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, $"Error inesperado: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost]
+        [Route("api/SendResult")]
+        public IHttpActionResult SendResult()
+        {
+            try
+            {
+                // Recupera el archivo
+                var file = HttpContext.Current.Request.Files["file"];
+
+                // Verifica si se proporcionó un archivo
+                if (file == null || file.ContentLength == 0)
+                {
+                    return BadRequest("No se proporcionó ningún archivo en la solicitud.");
+                }
+
+                // Lógica para guardar el archivo y los datos en la base de datos
+                using (var context = new FlorecerAppEntities())
+                {
+                    context.TestResults.Add(new TestResults
+                    {
+                        RoleId = 1, // RoleId del administrador
+                        FilePath = SaveFileAndGetPath(file),
+                        Date = DateTime.Now
+                    });
+
+                    context.SaveChanges();
+                }
+
+                return Ok("Resultado recibido con éxito. Se ha enviado al administrador.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al enviar el resultado: {ex.Message}");
+            }
+        }
+
+        private string SaveFileAndGetPath(HttpPostedFile file)
+        {
+            // Guarda el archivo en ~/App_Data
+            var fileName = Path.GetFileName(file.FileName);
+            var filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), fileName);
+            file.SaveAs(filePath);
+
+            return filePath;
+        }
+
 
 
 
