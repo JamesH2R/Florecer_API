@@ -85,7 +85,7 @@ namespace API_FlorecerApp.Controllers
                     }
 
                     // Crear un archivo ZIP para contener los archivos de evaluación
-                    var zipFileName = $"Evaluations_{userId}.zip";
+                    var zipFileName = $"Evaluaciones_{userId}.zip";
                     var zipFilePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), zipFileName);
 
                     // Utilizar System.IO.Compression.ZipFile para crear el archivo ZIP
