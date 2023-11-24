@@ -46,7 +46,7 @@ namespace API_FlorecerApp.Controllers
                         UserId = test.UserId,
                         FileName = fileName,
                         FilePath = filePath,
-                        Date = test.Date
+                        Date = DateTime.Now
                     });
 
                     context.SaveChanges();
