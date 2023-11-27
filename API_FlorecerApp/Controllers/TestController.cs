@@ -63,6 +63,46 @@ namespace API_FlorecerApp.Controllers
 
         }
 
+        [HttpGet]
+        [Route("api/getUserDropdown")]
+        public IHttpActionResult GetUserDropdown()
+        {
+            using (FlorecerAppEntities fa = new FlorecerAppEntities())
+            {
+                var query = from u in fa.Users
+                            select new UsersEnt
+                            {
+                                UserId = u.UserId,
+                                LastName = u.LastName
+                            };
+
+                IList<UsersEnt> result = query.ToList();
+                return Ok(result);
+            }
+        }
+
+        [HttpGet]
+        [Route("api/getUserById/{userId}")]
+        public IHttpActionResult GetUserById(long userId)
+        {
+            using (FlorecerAppEntities fa = new FlorecerAppEntities())
+            {
+                var user = fa.Users.FirstOrDefault(u => u.UserId == userId);
+                if (user != null)
+                {
+                    var result = new UsersEnt
+                    {
+                        UserId = user.UserId,
+                        LastName = user.LastName
+                    };
+                    return Ok(result);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+        }
 
         //Métodos Rol USUARIO
 
