@@ -104,6 +104,49 @@ namespace API_FlorecerApp.Controllers
             }
         }
 
+        [HttpDelete]
+        [Route("api/DeleteEvaluations/{userId}")]
+        public IHttpActionResult DeleteEvaluations(long userId)
+        {
+            try
+            {
+                using (var context = new FlorecerAppEntities())
+                {
+                    // Obtener evaluaciones del usuario
+                    var evaluations = context.MedicalTests
+                        .Where(mt => mt.UserId == userId)
+                        .ToList();
+
+                    if (evaluations.Count == 0)
+                    {
+                        return NotFound(); // No hay evaluaciones asignadas para este usuario
+                    }
+
+                    // Eliminar archivos y entradas de la base de datos
+                    foreach (var evaluation in evaluations)
+                    {
+                        // Eliminar archivo del directorio App_Data
+                        if (File.Exists(evaluation.FilePath))
+                        {
+                            File.Delete(evaluation.FilePath);
+                        }
+
+                        // Eliminar entrada de la base de datos
+                        context.MedicalTests.Remove(evaluation);
+                    }
+
+                    context.SaveChanges();
+
+                    return Ok("Evaluaciones eliminados con éxito.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al eliminar evaluaciones: {ex.Message}");
+            }
+        }
+
+
         //Métodos Rol USUARIO
 
         [HttpGet]
@@ -216,9 +259,6 @@ namespace API_FlorecerApp.Controllers
 
             return filePath;
         }
-
-
-
 
     }
 }
