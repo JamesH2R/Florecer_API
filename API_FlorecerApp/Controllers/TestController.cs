@@ -249,7 +249,6 @@ namespace API_FlorecerApp.Controllers
                 return BadRequest($"Error al enviar el resultado: {ex.Message}");
             }
         }
-
         private string SaveFileAndGetPath(HttpPostedFile file)
         {
             // Guarda el archivo en ~/App_Data
@@ -259,6 +258,42 @@ namespace API_FlorecerApp.Controllers
 
             return filePath;
         }
+
+        [HttpGet]
+        [Route("api/GetUserEvaluationNames/{userId}")]
+        public IHttpActionResult GetUserEvaluationNames(long userId)
+        {
+            try
+            {
+                using (var context = new FlorecerAppEntities())
+                {
+                    // Obtener evaluaciones del usuario
+                    var evaluations = context.MedicalTests
+                        .Where(mt => mt.UserId == userId)
+                        .ToList();
+
+                    if (evaluations.Count == 0)
+                    {
+                        return NotFound(); // No hay evaluaciones asignadas para este usuario
+                    }
+
+                    // Crear una lista para almacenar los nombres de archivo
+                    List<string> fileNames = new List<string>();
+
+                    foreach (var evaluation in evaluations)
+                    {
+                        fileNames.Add(evaluation.FileName);
+                    }
+
+                    return Ok(fileNames);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, $"Error inesperado: {ex.Message}");
+            }
+        }
+
 
     }
 }
