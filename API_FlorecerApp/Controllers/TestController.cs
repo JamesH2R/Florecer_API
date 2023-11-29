@@ -146,6 +146,109 @@ namespace API_FlorecerApp.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("api/GetAllPdfFileNames")]
+        public IHttpActionResult GetAllPdfFileNames()
+        {
+            try
+            {
+                using (var context = new FlorecerAppEntities())
+                {
+                    // Obtener los resultados de la base de datos
+                    var testResults = context.TestResults
+                        .Where(tr => tr.FilePath.EndsWith(".pdf")) // Filtrar por archivos PDF
+                        .ToList(); // Obtener los resultados de la base de datos
+
+                    // Convertir los resultados a objetos TestResultsEnt
+                    var results = testResults.Select(tr => new TestResultsEnt
+                    {
+                        ResultId = tr.ResultId, // Ajustar las propiedades según tu modelo TestResultsEnt
+                        FilePath = Path.GetFileName(tr.FilePath), // Obtener solo el nombre del archivo
+                                                                  // Agregar otras propiedades según sea necesario
+                    }).ToList();
+
+                    return Ok(results); // Devolver la lista de objetos TestResultsEnt
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al recuperar los nombres de archivo PDF: {ex.Message}");
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("api/DownloadTestResult/{ResultId}")]
+        public IHttpActionResult DownloadTestResult(long ResultId)
+        {
+            try
+            {
+                using (var context = new FlorecerAppEntities())
+                {
+                    // Obtener evaluaciones del usuario
+                    var evaluations = context.TestResults
+                        .Where(mt => mt.ResultId == ResultId)
+                        .ToList();
+
+                    if (evaluations.Count == 0)
+                    {
+                        return NotFound(); // No hay evaluaciones asignadas para este usuario
+                    }
+
+                    // Crear un archivo ZIP para contener los archivos de evaluación
+                    var zipFileName = $"{Path.GetFileNameWithoutExtension(evaluations[0].FilePath)}.zip";
+                    var zipFilePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), zipFileName);
+
+                    // Utilizar System.IO.Compression.ZipFile para crear el archivo ZIP
+                    using (var archive = ZipFile.Open(zipFilePath, ZipArchiveMode.Create))
+                    {
+                        foreach (var evaluation in evaluations)
+                        {
+                            // Obtener solo el nombre del archivo de la ruta completa
+                            var fileName = Path.GetFileName(evaluation.FilePath);
+
+                            // Agregar cada archivo de evaluación al archivo ZIP sin la ruta completa
+                            var entry = archive.CreateEntry(fileName);
+                            using (var entryStream = entry.Open())
+                            using (var fileStream = File.OpenRead(evaluation.FilePath))
+                            {
+                                fileStream.CopyTo(entryStream);
+                            }
+                        }
+
+                        // Devolver el archivo ZIP al cliente
+                        var fileBytes = File.ReadAllBytes(zipFilePath);
+                        var response = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new ByteArrayContent(fileBytes)
+                        };
+                        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                        {
+                            FileName = zipFileName
+                        };
+
+                        // Después de Devolver el Archivo ZIP al Cliente
+                        //File.Delete(zipFilePath);
+
+                        return ResponseMessage(response);
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, $"Error al acceder al archivo: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, $"Error inesperado: {ex.Message}");
+            }
+        }
+        private string GetFileNameForResultId(long resultId)
+        {
+
+            return $"{resultId}.pdf";
+        }
+
 
         //Métodos Rol USUARIO
 
