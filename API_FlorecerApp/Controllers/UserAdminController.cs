@@ -15,7 +15,7 @@ namespace API_FlorecerApp.Controllers
 
         [HttpGet]
         [Route("api/UserConsultation")]
-        public List<UsersEnt> UserConsultation(long userId)
+        public List<UsersEnt> UserConsultation()
         {
             using (var bd = new FlorecerAppEntities())
             {
@@ -33,8 +33,7 @@ namespace API_FlorecerApp.Controllers
                             Name = item.Name,
                             LastName = item.LastName,
                             Email = item.Email,
-                            Status = item.Status,
-                            RoleId = item.RoleId
+                            Status = item.Status
                         });
                     }
                     return resp;
@@ -79,8 +78,7 @@ namespace API_FlorecerApp.Controllers
                         Name = u.Name,
                         LastName = u.LastName,
                         Email = u.Email,
-                        Status = u.Status,
-                        RoleId = u.RoleId
+                        Status = u.Status
                     })
                     .ToList();
 
