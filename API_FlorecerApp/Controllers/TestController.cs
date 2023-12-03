@@ -73,7 +73,7 @@ namespace API_FlorecerApp.Controllers
                             select new UsersEnt
                             {
                                 UserId = u.UserId,
-                                LastName = u.LastName
+                                LastName = u.Name + " " + u.LastName
                             };
 
                 IList<UsersEnt> result = query.ToList();
@@ -93,7 +93,8 @@ namespace API_FlorecerApp.Controllers
                     var result = new UsersEnt
                     {
                         UserId = user.UserId,
-                        LastName = user.LastName
+                        LastName = user.LastName,
+                        Name = user.Name
                     };
                     return Ok(result);
                 }
