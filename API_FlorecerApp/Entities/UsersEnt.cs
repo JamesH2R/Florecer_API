@@ -14,6 +14,10 @@ namespace API_FlorecerApp.Entities
         public string Password { get; set; }
 
         public string NewPassword { get; set; }
+
+        public string Phone { get; set; }
+
+        public string Address { get; set; }
         public long RoleId { get; set; }
 
         public string RoleName { get; set; }

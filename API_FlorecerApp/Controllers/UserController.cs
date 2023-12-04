@@ -6,6 +6,7 @@ using API_FlorecerApp.Models;
 using API_FlorecerApp.App_Start;
 using Microsoft.Ajax.Utilities;
 using System.Collections.Generic;
+using System.Net;
 
 namespace API_FlorecerApp.Controllers
 {
@@ -48,9 +49,15 @@ namespace API_FlorecerApp.Controllers
                         resp.RoleId = user.RoleId;
                         resp.RoleName = user.Roles.RoleName;
                         resp.UserId = user.UserId;
+                        resp.Phone = user.Phone;
+                        resp.Address = user.Address;
                         resp.Token = tok.GenerateTokenJwt(user.UserId);
                         return Ok(resp);
                     }
+                }
+                else if (user != null && !user.Status)
+                {
+                    return Content(HttpStatusCode.Unauthorized, "El usuario está inactivo.");
                 }
                 return Unauthorized();
             }
@@ -76,6 +83,8 @@ namespace API_FlorecerApp.Controllers
                 table.Password = hashedPassword;
                 table.LastName = entidad.LastName;
                 table.Name = entidad.Name;
+                table.Phone = entidad.Phone;
+                table.Address = entidad.Address;
                 table.Status = true;
                 table.TemporalKey = false;
                 table.Expiration = DateTime.Now;
@@ -163,6 +172,8 @@ namespace API_FlorecerApp.Controllers
                             LastName = item.LastName,
                             Status = item.Status,
                             RoleId = item.RoleId,
+                            Phone = item.Phone,
+                            Address = item.Address,
                             UserId = item.UserId
                         });
                     }
@@ -194,6 +205,8 @@ namespace API_FlorecerApp.Controllers
                     resp.Status = datos.Status;
                     resp.RoleId = datos.RoleId;
                     resp.UserId = datos.UserId;
+                    resp.Phone = datos.Phone;
+                    resp.Address = datos.Address;
                     return resp;
                 }
                 else
@@ -249,6 +262,8 @@ namespace API_FlorecerApp.Controllers
                     datos.Name = entidad.Name;
                     datos.LastName = entidad.LastName;
                     datos.Email = entidad.Email;
+                    datos.Address = entidad.Address;
+                    datos.Phone = entidad.Phone;
                     return bd.SaveChanges();
                 }
 
