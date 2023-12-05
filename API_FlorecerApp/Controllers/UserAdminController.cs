@@ -49,19 +49,52 @@ namespace API_FlorecerApp.Controllers
         [Route("api/InactivateUser/{userId}")]
         public IHttpActionResult InactivateUser(int userId)
         {
-            using (var context = new FlorecerAppEntities())
+            try
             {
-                var user = context.Users.FirstOrDefault(u => u.UserId == userId);
-                if (user == null)
+                using (var context = new FlorecerAppEntities())
                 {
-                    return NotFound();
+                    var user = context.Users.FirstOrDefault(u => u.UserId == userId);
+                    if (user == null)
+                    {
+                        return NotFound();
+                    }
+
+                    user.Status = false;
+                    context.SaveChanges();
                 }
 
-                user.Status = false; 
-                context.SaveChanges();
+                return Ok("Usuario inactivado con éxito");
             }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            return Ok("Usuario inactivado con éxito");
+        [HttpPut]
+        [Route("api/ActivateUser/{userId}")]
+        public IHttpActionResult ActivateUser(int userId)
+        {
+            try
+            {
+                using (var context = new FlorecerAppEntities())
+                {
+                    var user = context.Users.FirstOrDefault(u => u.UserId == userId);
+                    if (user == null)
+                    {
+                        return NotFound();
+                    }
+
+                    user.Status = true;
+                    context.SaveChanges();
+                }
+
+                return Ok("Usuario activado con éxito");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
