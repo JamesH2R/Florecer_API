@@ -253,21 +253,29 @@ namespace API_FlorecerApp.Controllers
         {
             using (var bd = new FlorecerAppEntities())
             {
-                var datos = (from x in bd.Users
-                             where x.UserId == entidad.UserId
-                             select x).FirstOrDefault();
+                var datos = bd.Users.FirstOrDefault(x => x.UserId == entidad.UserId);
 
                 if (datos != null)
                 {
-                    datos.Name = entidad.Name;
-                    datos.LastName = entidad.LastName;
-                    datos.Email = entidad.Email;
-                    datos.Address = entidad.Address;
-                    datos.Phone = entidad.Phone;
-                    return bd.SaveChanges();
+                    var existingUserWithEmail = bd.Users.FirstOrDefault(u => u.Email == entidad.Email && u.UserId != entidad.UserId);
+
+                    if (existingUserWithEmail == null)
+                    {
+                        // El correo electrónico no está siendo utilizado por otro usuario, se puede actualizar
+                        datos.Name = entidad.Name;
+                        datos.LastName = entidad.LastName;
+                        datos.Email = entidad.Email;
+                        return bd.SaveChanges();
+                    }
+                    else
+                    {
+                        // El correo electrónico ya está asignado a otro usuario
+                        // No se permite cambiar el correo por uno que ya está en uso
+                        return 2; // O podrías retornar un código de error específico, según tu lógica de respuesta.
+                    }
                 }
 
-                return 0;
+                return 0; // O podrías manejar este caso de manera diferente, dependiendo de tus requisitos.
             }
         }
 
