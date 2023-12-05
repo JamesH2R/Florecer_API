@@ -23,7 +23,6 @@ namespace API_FlorecerApp.Controllers
                 {
                     try
                     {
-                        FreePastAppointments(bd);
                         var appointments = bd.Appointments.ToList();
                         transaction.Commit();
                         return Ok(appointments);
@@ -37,71 +36,120 @@ namespace API_FlorecerApp.Controllers
             }
         }
 
-        //[HttpPost]
-        //[Route("api/SetAppointment/{appointmentId}")]
-        //public IHttpActionResult SetAppointment(int appointmentId)
-        //{
+        [HttpGet]
+        [Route("api/AppointmentsByUserId/{userId}")]
+        public IHttpActionResult GetAppointmentsByUserId(long userId)
+        {
+            using (var bd = new FlorecerAppEntities())
+            {
+                try
+                {
+                    var appointments = bd.Appointments.Where(a => a.UserId == userId).ToList();
 
-        //    using (var bd = new FlorecerAppEntities())
-        //    {
-        //        try
-        //        {
+                    return Ok(appointments);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return BadRequest("Error al obtener las citas por userId.");
+                }
+            }
+        }
 
-        //            var appointment = bd.Appointments.Find(appointmentId);
+        [HttpPost]
+        [Route("api/CreateAppointment")]
+        public IHttpActionResult CreateAppointment(AppointmentsEnt newAppointment)
+        {
+            using (var bd = new FlorecerAppEntities())
+            {
+                try
+                {
+                    var appointmentToAdd = new Appointments
+                    {
+                        AppointmentId = newAppointment.AppointmentId,
+                        Date = newAppointment.Date,
+                        Hour = newAppointment.Hour,
+                        Available = true          
+                    };
 
-        //            if (appointment != null)
-        //            {
-        //                // Marcar la cita como reservada (ajusta según tu modelo)
-        //                appointment.Available = true;
+                    bd.Appointments.Add(appointmentToAdd);
+                    bd.SaveChanges();
 
-        //                bd.Appointments.Add(new AppoimentsEnt
-        //                {
-        //                    UserId = ,
-        //                    AppointmentId = appointmentId
-        //                });
-
-        //                // Guardar los cambios en la base de datos
-        //                bd.SaveChanges();
-
-        //                return Ok("Cita reservada exitosamente.");
-        //            }
-        //            else
-        //            {
-        //                return NotFound();
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return InternalServerError(ex);
-        //        }
-        //    }
-        //}
+                    return Ok("Cita creada exitosamente.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return BadRequest("Error al crear la cita.");
+                }
+            }
+        }
 
 
         [HttpPost]
-        private IHttpActionResult FreePastAppointments(FlorecerAppEntities bd)
+        [Route("api/SetAppointment/{appointmentId}")]
+        public IHttpActionResult SetAppointment(int appointmentId, int userId)
         {
-            try
+            using (var bd = new FlorecerAppEntities())
             {
+                try
+                {
+                    var appointment = bd.Appointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
 
-                    var actualDate = DateTime.UtcNow;
-
-                    var pastAppointments = bd.Appointments.Where(c => c.Date < actualDate && !c.Available);
-
-                    foreach (var schedule in pastAppointments)
+                    if (appointment != null)
                     {
-                        schedule.Available = true;
+                        if (appointment.Available)
+                        {
+                            appointment.Available = false;
+                            appointment.UserId = userId;
+
+                            bd.SaveChanges();
+
+                            return Ok("Cita reservada exitosamente.");
+                        }
+                        else
+                        {
+                            return BadRequest("La cita ya está reservada.");
+                        }
                     }
-
-                    bd.SaveChanges();
-
-                    return Ok();
-                
-                    
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
             }
-            catch (Exception ex)
+        }
+
+        [HttpDelete]
+        [Route("api/DeleteAppointment/{appointmentId}")]
+        public IHttpActionResult DeleteAppointment(long appointmentId)
+        {
+            using (var bd = new FlorecerAppEntities())
             {
-                throw ex;
+                try
+                {
+                    var appointmentToDelete = bd.Appointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
+
+                    if (appointmentToDelete != null)
+                    {
+                        bd.Appointments.Remove(appointmentToDelete);
+                        bd.SaveChanges();
+                        return Ok("Cita eliminada exitosamente.");
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return BadRequest("Error al eliminar la cita.");
+                }
             }
         }
 

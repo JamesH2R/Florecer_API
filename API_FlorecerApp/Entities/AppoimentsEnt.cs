@@ -5,12 +5,13 @@ using System.Web;
 
 namespace API_FlorecerApp.Entities
 {
-    public class AppoimentsEnt
+    public class AppointmentsEnt
     {
-        public long AppoimentId { get; set; }
-        public long UserId { get; set; }
-        public DateTime Date { get; set; }
+        public long AppointmentId { get; set; }
+        public System.DateTime Date { get; set; }
         public string Hour { get; set; }
-       
+        public bool Available { get; set; }
+        public Nullable<long> UserId { get; set; }
+
     }
 }
