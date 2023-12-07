@@ -18,6 +18,8 @@ namespace API_FlorecerApp.Controllers
     {
         //Métodos Rol ADMIN
 
+        /*
+         
         [HttpPost]
         [Route("api/AssignEvaluation")]
         public IHttpActionResult AssignEvaluation()
@@ -62,6 +64,56 @@ namespace API_FlorecerApp.Controllers
             }
 
         }
+
+        */
+
+        [HttpPost]
+        [Route("api/AssignEvaluation")]
+        public IHttpActionResult AssignEvaluation()
+        {
+            try
+            {
+                var testJson = HttpContext.Current.Request.Form["test"];
+                var file = HttpContext.Current.Request.Files["file"];
+                MedicalTestsEnt test = JsonConvert.DeserializeObject<MedicalTestsEnt>(testJson);
+
+                using (var context = new FlorecerAppEntities())
+                {
+                    var user = context.Users.FirstOrDefault(u => u.UserId == test.UserId);
+
+                    if (user == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Obtener el nombre original del archivo
+                    string originalFileName = file.FileName;
+
+                    // Guardar el archivo con su nombre original en lugar de cambiarlo
+                    string filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), originalFileName);
+                    file.SaveAs(filePath);
+
+                    context.MedicalTests.Add(new MedicalTests
+                    {
+                        UserId = test.UserId,
+                        FileName = originalFileName,
+                        FilePath = filePath,
+                        Date = DateTime.Now
+                    });
+
+                    context.SaveChanges();
+
+                    return Ok("Evaluación asignada con éxito.");
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
 
         [HttpGet]
         [Route("api/getUserDropdown")]
@@ -148,17 +200,18 @@ namespace API_FlorecerApp.Controllers
         }
 
         [HttpGet]
-        [Route("api/GetAllPdfFileNames")]
-        public IHttpActionResult GetAllPdfFileNames()
+        [Route("api/GetAllFileNames")]
+        public IHttpActionResult GetAllFileNames()
         {
             try
             {
                 using (var context = new FlorecerAppEntities())
                 {
                     // Obtener los resultados de la base de datos
+                    var allowedExtensions = new[] { ".pdf", ".docx", ".xlsx" };
                     var testResults = context.TestResults
-                        .Where(tr => tr.FilePath.EndsWith(".pdf")) // Filtrar por archivos PDF
-                        .ToList(); // Obtener los resultados de la base de datos
+                        .Where(tr => allowedExtensions.Any(ext => tr.FilePath.EndsWith(ext)))
+                        .ToList();
 
                     // Convertir los resultados a objetos TestResultsEnt
                     var results = testResults.Select(tr => new TestResultsEnt
@@ -173,7 +226,7 @@ namespace API_FlorecerApp.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al recuperar los nombres de archivo PDF: {ex.Message}");
+                Console.WriteLine($"Error al recuperar los nombres de archivo: {ex.Message}");
                 return InternalServerError(ex);
             }
         }
@@ -228,9 +281,6 @@ namespace API_FlorecerApp.Controllers
                             FileName = zipFileName
                         };
 
-                        // Después de Devolver el Archivo ZIP al Cliente
-                        //File.Delete(zipFilePath);
-
                         return ResponseMessage(response);
                     }
                 }
@@ -244,10 +294,47 @@ namespace API_FlorecerApp.Controllers
                 return Content(HttpStatusCode.InternalServerError, $"Error inesperado: {ex.Message}");
             }
         }
-        private string GetFileNameForResultId(long resultId)
-        {
 
-            return $"{resultId}.pdf";
+        [HttpDelete]
+        [Route("api/DeleteTestResult/{ResultId}")]
+        public IHttpActionResult DeleteTestResult(long ResultId)
+        {
+            try
+            {
+                using (var context = new FlorecerAppEntities())
+                {
+                    // Obtener evaluaciones del usuario
+                    var evaluations = context.TestResults
+                        .Where(mt => mt.ResultId == ResultId)
+                        .ToList();
+
+                    if (evaluations.Count == 0)
+                    {
+                        return NotFound(); // No hay evaluaciones asignadas para este usuario
+                    }
+
+                    // Eliminar archivos y entradas de la base de datos
+                    foreach (var evaluation in evaluations)
+                    {
+                        // Eliminar archivo del directorio App_Data
+                        if (File.Exists(evaluation.FilePath))
+                        {
+                            File.Delete(evaluation.FilePath);
+                        }
+
+                        // Eliminar entrada de la base de datos
+                        context.TestResults.Remove(evaluation);
+                    }
+
+                    context.SaveChanges();
+
+                    return Ok("Evaluaciones eliminados con éxito.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al eliminar evaluaciones: {ex.Message}");
+            }
         }
 
 

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="FlorecerAppModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="FlorecerAppModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Appointments">
           <Key>
             <PropertyRef Name="AppointmentId" />
@@ -38,7 +38,7 @@
           <Key>
             <PropertyRef Name="TestId" />
           </Key>
-          <Property Name="TestId" Type="bigint" Nullable="false" />
+          <Property Name="TestId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="UserId" Type="bigint" Nullable="false" />
           <Property Name="FileName" Type="nvarchar(max)" />
           <Property Name="FilePath" Type="nvarchar(max)" />
@@ -50,7 +50,7 @@
           </Key>
           <Property Name="RoleId" Type="bigint" Nullable="false" />
           <Property Name="RoleName" Type="nvarchar" MaxLength="50" />
-          <Property Name="Status" Type="bit" Nullable="false" />
+          <Property Name="Status" Type="bit" />
         </EntityType>
         <EntityType Name="Specialties">
           <Key>
@@ -63,7 +63,7 @@
           <Key>
             <PropertyRef Name="ResultId" />
           </Key>
-          <Property Name="ResultId" Type="bigint" Nullable="false" />
+          <Property Name="ResultId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="RoleId" Type="bigint" />
           <Property Name="FilePath" Type="nvarchar(max)" />
           <Property Name="Date" Type="datetime" />
@@ -190,7 +190,8 @@
             <End Role="TestResults" EntitySet="TestResults" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="FlorecerAppModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -230,7 +231,7 @@
           <Key>
             <PropertyRef Name="TestId" />
           </Key>
-          <Property Name="TestId" Type="Int64" Nullable="false" />
+          <Property Name="TestId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="UserId" Type="Int64" Nullable="false" />
           <Property Name="FileName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="FilePath" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
@@ -243,7 +244,7 @@
           </Key>
           <Property Name="RoleId" Type="Int64" Nullable="false" />
           <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Status" Type="Boolean" Nullable="false" />
+          <Property Name="Status" Type="Boolean" />
           <NavigationProperty Name="Users" Relationship="Self.FK__Users__RoleId__38996AB5" FromRole="Roles" ToRole="Users" />
           <NavigationProperty Name="TestResults" Relationship="Self.FK_TestResults_Roles" FromRole="Roles" ToRole="TestResults" />
         </EntityType>
@@ -259,7 +260,7 @@
           <Key>
             <PropertyRef Name="ResultId" />
           </Key>
-          <Property Name="ResultId" Type="Int64" Nullable="false" />
+          <Property Name="ResultId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="RoleId" Type="Int64" />
           <Property Name="FilePath" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Date" Type="DateTime" Precision="3" />
@@ -278,12 +279,12 @@
           <Property Name="Status" Type="Boolean" Nullable="false" />
           <Property Name="TemporalKey" Type="Boolean" />
           <Property Name="Expiration" Type="DateTime" Precision="3" />
+          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Appointments" Relationship="Self.FK_Appointments_Users" FromRole="Users" ToRole="Appointments" />
           <NavigationProperty Name="Binnacle" Relationship="Self.FK__Binnacle__UserId__4AB81AF0" FromRole="Users" ToRole="Binnacle" />
           <NavigationProperty Name="MedicalTests" Relationship="Self.FK_MedicalTests_Users" FromRole="Users" ToRole="MedicalTests" />
           <NavigationProperty Name="Roles" Relationship="Self.FK__Users__RoleId__38996AB5" FromRole="Users" ToRole="Roles" />
-          <Property Name="Address" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Phone" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Appointments_Users">
           <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
@@ -470,8 +471,6 @@
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="FlorecerAppModel.Users">
               <MappingFragment StoreEntitySet="Users">
-                <ScalarProperty Name="Phone" ColumnName="Phone" />
-                <ScalarProperty Name="Address" ColumnName="Address" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="LastName" ColumnName="LastName" />
@@ -481,6 +480,8 @@
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="TemporalKey" ColumnName="TemporalKey" />
                 <ScalarProperty Name="Expiration" ColumnName="Expiration" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -501,7 +502,7 @@
         <DesignerProperty Name="EnablePluralization" Value="false" />
         <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
         <DesignerProperty Name="UseLegacyProvider" Value="false" />
-        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
       </DesignerInfoPropertySet>
     </Options>
     <!-- Diagram content (shape and connector positions) -->
