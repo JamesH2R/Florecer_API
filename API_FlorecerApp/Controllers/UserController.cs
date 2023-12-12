@@ -18,7 +18,6 @@ namespace API_FlorecerApp.Controllers
         //Token Generator
         TokenGenerator tok = new TokenGenerator();
 
-
         [HttpPost]
         [Route("api/Login")]
         [AllowAnonymous]
@@ -28,31 +27,34 @@ namespace API_FlorecerApp.Controllers
 
             using (var bd = new FlorecerAppEntities())
             {
-
                 var user = bd.Users.SingleOrDefault(x => x.Email == entidad.Email && x.Status == true);
 
                 if (user != null)
                 {
-
-                    if (BCrypt.Net.BCrypt.Verify(entidad.Password, user.Password))
+                    // Verificar si el estado TemporalKey fue modificado a true hace más de 15 minutos
+                    if (user.TemporalKey == true && user.Expiration < DateTime.Now.AddMinutes(-15))
                     {
-                        if (user.TemporalKey.Value && user.Expiration < DateTime.Now)
+                        //No  Permitir el inicio de sesión sin verificar la contraseña si TemporalKey fue modificado hace más de 15 minutos
+                        return Unauthorized();
+                    }
+                    else
+                    {
+                        // Verificar la contraseña utilizando BCrypt si no se cumplió la condición anterior
+                        if (BCrypt.Net.BCrypt.Verify(entidad.Password, user.Password))
                         {
-                            return null;
+                            UsersEnt resp = new UsersEnt();
+                            resp.Email = user.Email;
+                            resp.Name = user.Name;
+                            resp.LastName = user.LastName;
+                            resp.Status = user.Status;
+                            resp.RoleId = user.RoleId;
+                            resp.RoleName = user.Roles.RoleName;
+                            resp.UserId = user.UserId;
+                            resp.Phone = user.Phone;
+                            resp.Address = user.Address;
+                            resp.Token = tok.GenerateTokenJwt(user.UserId);
+                            return Ok(resp);
                         }
-
-                        UsersEnt resp = new UsersEnt();
-                        resp.Email = user.Email;
-                        resp.Name = user.Name;
-                        resp.LastName = user.LastName;
-                        resp.Status = user.Status;
-                        resp.RoleId = user.RoleId;
-                        resp.RoleName = user.Roles.RoleName;
-                        resp.UserId = user.UserId;
-                        resp.Phone = user.Phone;
-                        resp.Address = user.Address;
-                        resp.Token = tok.GenerateTokenJwt(user.UserId);
-                        return Ok(resp);
                     }
                 }
                 else if (user != null && !user.Status)
@@ -62,6 +64,55 @@ namespace API_FlorecerApp.Controllers
                 return Unauthorized();
             }
         }
+
+        /* 
+         [HttpPost]
+          [Route("api/Login")]
+          [AllowAnonymous]
+          public IHttpActionResult Login(LoginEnt entidad)
+          {
+              TokenGenerator tok = new TokenGenerator();
+
+              using (var bd = new FlorecerAppEntities())
+              {
+
+                  var user = bd.Users.SingleOrDefault(x => x.Email == entidad.Email && x.Status == true);
+
+                  if (user != null)
+                  {
+
+                      if (BCrypt.Net.BCrypt.Verify(entidad.Password, user.Password))
+                      {
+                          if (user.TemporalKey.Value && user.Expiration < DateTime.Now)
+                          {
+                              return null;
+                          }
+
+                          UsersEnt resp = new UsersEnt();
+                          resp.Email = user.Email;
+                          resp.Name = user.Name;
+                          resp.LastName = user.LastName;
+                          resp.Status = user.Status;
+                          resp.RoleId = user.RoleId;
+                          resp.RoleName = user.Roles.RoleName;
+                          resp.UserId = user.UserId;
+                          resp.Phone = user.Phone;
+                          resp.Address = user.Address;
+                          resp.Token = tok.GenerateTokenJwt(user.UserId);
+                          return Ok(resp);
+                      }
+                  }
+                  else if (user != null && !user.Status)
+                  {
+                      return Content(HttpStatusCode.Unauthorized, "El usuario está inactivo.");
+                  }
+                  return Unauthorized();
+              }
+          }
+
+        */
+
+
 
         [HttpPost]
         [Route("api/Register")]
@@ -97,34 +148,81 @@ namespace API_FlorecerApp.Controllers
             }
         }
 
+        /*   
+         [HttpPost]
+             [Route("api/RecoverKey")]
+             [AllowAnonymous]
+             public bool RecoverKey(UsersEnt entidad)
+             {
+                 Utilities util = new Utilities();
+
+                 using (var bd = new FlorecerAppEntities())
+                 {
+                     var datos = (from x in bd.Users
+                                  where x.Email == entidad.Email
+                                                && x.Status == true
+                                  select x).FirstOrDefault();
+
+                     if (datos != null)
+                     {
+                         string pass = util.CreatePassword();
+                         string mensaje = "Estimado(a): " + datos.Name + ". Se ha generado la siguiente contraseña temporal: " + pass + " valida por 15 minutos";
+                         util.SendEmail(datos.Email, "Recuperar Contraseña", mensaje);
+
+                         //Update LinQ
+                         datos.Password = pass;
+                         datos.TemporalKey = true;
+                         datos.Expiration = DateTime.Now.AddMinutes(15);
+                         bd.SaveChanges();
+                         return true;
+                     }
+                 }
+
+                 return false;
+             }
+
+         */
+
         [HttpPost]
         [Route("api/RecoverKey")]
         [AllowAnonymous]
         public bool RecoverKey(UsersEnt entidad)
         {
-            Utilities util = new Utilities();
+            UtilitiesModel util = new UtilitiesModel();
 
             using (var bd = new FlorecerAppEntities())
             {
                 var datos = (from x in bd.Users
                              where x.Email == entidad.Email
-                                           && x.Status == true
+                             && x.Status == true
                              select x).FirstOrDefault();
 
                 if (datos != null)
                 {
                     string pass = util.CreatePassword();
-                    string mensaje = "Estimado(a): " + datos.Name + ". Se ha generado la siguiente contraseña temporal: " + pass + " valida por 15 minutos";
+                    string mensaje = "Estimado(a): " + datos.Name + ". Se ha generado la siguiente contraseña temporal: " + pass + " válida por los siguientes 15 minutos. Por favor, vaya a la página de editar cuenta y cambie su contraseña.";
+
+
+
+                    // Hashear la contraseña temporal antes de guardarla
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(pass);
+
+
                     util.SendEmail(datos.Email, "Recuperar Contraseña", mensaje);
 
-                    //Update LinQ
-                    datos.Password = pass;
+                    // Update de la información del usuario en la base de datos
+
+
+                    datos.Password = hashedPassword;
+
                     datos.TemporalKey = true;
                     datos.Expiration = DateTime.Now.AddMinutes(15);
                     bd.SaveChanges();
                     return true;
+
                 }
             }
+
 
             return false;
         }
@@ -141,15 +239,46 @@ namespace API_FlorecerApp.Controllers
 
                 if (datos != null)
                 {
-                    datos.Password = entidad.NewPassword;
+                    // Encriptar la nueva contraseña antes de guardarla
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(entidad.NewPassword);
+
+                    datos.Password = hashedPassword;
                     datos.TemporalKey = false;
                     datos.Expiration = DateTime.Now;
+
                     return bd.SaveChanges();
                 }
 
                 return 0;
             }
         }
+
+
+        /*  
+
+         [HttpPut]
+          [Route("api/ChangePassword")]
+          public int ChangePassword(UsersEnt entidad)
+          {
+              using (var bd = new FlorecerAppEntities())
+              {
+                  var datos = (from x in bd.Users
+                               where x.UserId == entidad.UserId
+                               select x).FirstOrDefault();
+
+                  if (datos != null)
+                  {
+                      datos.Password = entidad.NewPassword;
+                      datos.TemporalKey = false;
+                      datos.Expiration = DateTime.Now;
+                      return bd.SaveChanges();
+                  }
+
+                  return 0;
+              }
+          }
+
+          */
 
         [HttpGet]
         [Route("api/ConsultUsers")]

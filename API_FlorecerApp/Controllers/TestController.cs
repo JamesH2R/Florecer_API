@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -17,55 +18,6 @@ namespace API_FlorecerApp.Controllers
     public class TestController : ApiController
     {
         //Métodos Rol ADMIN
-
-        /*
-         
-        [HttpPost]
-        [Route("api/AssignEvaluation")]
-        public IHttpActionResult AssignEvaluation()
-        {
-            try
-            {
-                var testJson = HttpContext.Current.Request.Form["test"];
-                var file = HttpContext.Current.Request.Files["file"];
-                MedicalTestsEnt test = JsonConvert.DeserializeObject<MedicalTestsEnt>(testJson);
-
-                using (var context = new FlorecerAppEntities())
-                {
-                    var user = context.Users.FirstOrDefault(u => u.UserId == test.UserId);
-
-                    if (user == null)
-                    {
-                        return NotFound();
-                    }
-
-                    string fileName = Path.GetFileName(test.FileName);
-                    string filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), fileName);
-                    file.SaveAs(filePath);
-
-                    context.MedicalTests.Add(new MedicalTests
-                    {
-                        UserId = test.UserId,
-                        FileName = fileName,
-                        FilePath = filePath,
-                        Date = DateTime.Now
-                    });
-
-                    context.SaveChanges();
-
-                    return Ok("Evaluación asignada con éxito.");
-
-                }
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(ex.Message);
-            }
-
-        }
-
-        */
 
         [HttpPost]
         [Route("api/AssignEvaluation")]
@@ -112,8 +64,6 @@ namespace API_FlorecerApp.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
 
         [HttpGet]
         [Route("api/getUserDropdown")]
@@ -239,50 +189,33 @@ namespace API_FlorecerApp.Controllers
             {
                 using (var context = new FlorecerAppEntities())
                 {
-                    // Obtener evaluaciones del usuario
-                    var evaluations = context.TestResults
-                        .Where(mt => mt.ResultId == ResultId)
-                        .ToList();
+                    // Obtener la evaluación del usuario
+                    var evaluation = context.TestResults.FirstOrDefault(mt => mt.ResultId == ResultId);
 
-                    if (evaluations.Count == 0)
+                    if (evaluation == null)
                     {
-                        return NotFound(); // No hay evaluaciones asignadas para este usuario
+                        return NotFound(); // No hay evaluación asignada para este usuario
                     }
 
-                    // Crear un archivo ZIP para contener los archivos de evaluación
-                    var zipFileName = $"{Path.GetFileNameWithoutExtension(evaluations[0].FilePath)}.zip";
-                    var zipFilePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), zipFileName);
+                    // Obtener el nombre del archivo de la ruta completa
+                    var fileName = Path.GetFileName(evaluation.FilePath);
 
-                    // Utilizar System.IO.Compression.ZipFile para crear el archivo ZIP
-                    using (var archive = ZipFile.Open(zipFilePath, ZipArchiveMode.Create))
+                    // Leer el contenido del archivo
+                    var fileBytes = File.ReadAllBytes(evaluation.FilePath);
+
+                    // Crear una respuesta HTTP con el contenido del archivo
+                    var response = new HttpResponseMessage(HttpStatusCode.OK)
                     {
-                        foreach (var evaluation in evaluations)
-                        {
-                            // Obtener solo el nombre del archivo de la ruta completa
-                            var fileName = Path.GetFileName(evaluation.FilePath);
+                        Content = new ByteArrayContent(fileBytes)
+                    };
 
-                            // Agregar cada archivo de evaluación al archivo ZIP sin la ruta completa
-                            var entry = archive.CreateEntry(fileName);
-                            using (var entryStream = entry.Open())
-                            using (var fileStream = File.OpenRead(evaluation.FilePath))
-                            {
-                                fileStream.CopyTo(entryStream);
-                            }
-                        }
+                    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = fileName
+                    };
 
-                        // Devolver el archivo ZIP al cliente
-                        var fileBytes = File.ReadAllBytes(zipFilePath);
-                        var response = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new ByteArrayContent(fileBytes)
-                        };
-                        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                        {
-                            FileName = zipFileName
-                        };
-
-                        return ResponseMessage(response);
-                    }
+                    // Devolver la respuesta HTTP al cliente
+                    return ResponseMessage(response);
                 }
             }
             catch (UnauthorizedAccessException ex)
@@ -294,6 +227,7 @@ namespace API_FlorecerApp.Controllers
                 return Content(HttpStatusCode.InternalServerError, $"Error inesperado: {ex.Message}");
             }
         }
+
 
         [HttpDelete]
         [Route("api/DeleteTestResult/{ResultId}")]
@@ -340,12 +274,14 @@ namespace API_FlorecerApp.Controllers
 
         //Métodos Rol USUARIO
 
+
         [HttpGet]
-        [Route("api/DownloadEvaluation/{userId}")]
-        public IHttpActionResult DownloadEvaluation(long userId)
+        [Route("api/GetUserEvaluations/{userId}")]
+        public IHttpActionResult GetUserEvaluations(long userId)
         {
             try
             {
+
                 using (var context = new FlorecerAppEntities())
                 {
                     // Obtener evaluaciones del usuario
@@ -353,53 +289,79 @@ namespace API_FlorecerApp.Controllers
                         .Where(mt => mt.UserId == userId)
                         .ToList();
 
-                    if (evaluations.Count == 0)
+                    // Mapear evaluaciones a una lista de objetos anónimos para el frontend
+                    var evaluationList = evaluations.Select(e => new
                     {
-                        return NotFound(); // No hay evaluaciones asignadas para este usuario
+                        TestId = e.TestId,
+                        FileName = e.FileName
+                    }).ToList();
+
+                    return Ok(evaluationList);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, $"Error inesperado: {ex.Message}");
+            }
+        }
+
+        
+        [HttpPost]
+        [Route("api/DownloadEvaluation/{userId}/{selectedTestId}")]
+        public IHttpActionResult DownloadEvaluation(long userId, long selectedTestId)
+        {
+            try
+            {
+                using (var context = new FlorecerAppEntities())
+                {
+                    // Verificar si la evaluación pertenece al usuario
+                    var evaluation = context.MedicalTests.FirstOrDefault(mt => mt.UserId == userId && mt.TestId == selectedTestId);
+
+                    if (evaluation == null)
+                    {
+                        // La evaluación no pertenece al usuario
+                        return Content(HttpStatusCode.NotFound, "La evaluación no existe o no pertenece al usuario.");
                     }
 
-                    // Crear un archivo ZIP para contener los archivos de evaluación
-                    var zipFileName = $"Evaluaciones_{userId}.zip";
-                    var zipFilePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), zipFileName);
+                    // Obtener el nombre original del archivo
+                    string originalFileName = evaluation.FileName;
 
-                    // Utilizar System.IO.Compression.ZipFile para crear el archivo ZIP
-                    using (var archive = ZipFile.Open(zipFilePath, ZipArchiveMode.Create))
+                    // Obtener el path del archivo desde la entidad MedicalTests
+                    string filePath = evaluation.FilePath;
+
+                    // Verificar si el archivo existe en el sistema de archivos
+                    if (!File.Exists(filePath))
                     {
-                        foreach (var evaluation in evaluations)
-                        {
-                            // Agregar cada archivo de evaluación al archivo ZIP
-                            var entry = archive.CreateEntry(evaluation.FileName);
-                            using (var entryStream = entry.Open())
-                            using (var fileStream = File.OpenRead(evaluation.FilePath))
-                            {
-                                fileStream.CopyTo(entryStream);
-                            }
-                        }
+                        return Content(HttpStatusCode.NotFound, "El archivo no se encuentra en el sistema de archivos.");
                     }
 
-                    // Devolver el archivo ZIP al cliente
-                    var fileBytes = File.ReadAllBytes(zipFilePath);
-                    var response = new HttpResponseMessage(HttpStatusCode.OK)
+                    // Leer los bytes del archivo
+                    byte[] fileBytes = File.ReadAllBytes(filePath);
+
+                    // Devolver el archivo como respuesta
+                    var result = new HttpResponseMessage(HttpStatusCode.OK)
                     {
                         Content = new ByteArrayContent(fileBytes)
                     };
-                    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+
+                    result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
                     {
-                        FileName = zipFileName
+                        FileName = originalFileName
                     };
 
-                    // Después de Devolver el Archivo ZIP al Cliente
-                    //File.Delete(zipFilePath);
+                    result.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
 
-                    return ResponseMessage(response);
+                    return ResponseMessage(result);
                 }
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Content(HttpStatusCode.InternalServerError, $"Error al acceder al archivo: {ex.Message}");
+                // Manejar la excepción de acceso no autorizado
+                return Content(HttpStatusCode.Unauthorized, $"Error al acceder al archivo: {ex.Message}");
             }
             catch (Exception ex)
             {
+                // Manejar otras excepciones
                 return Content(HttpStatusCode.InternalServerError, $"Error inesperado: {ex.Message}");
             }
         }

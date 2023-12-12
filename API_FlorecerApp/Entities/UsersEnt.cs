@@ -26,5 +26,7 @@ namespace API_FlorecerApp.Entities
 
         public bool Status { get; set; }
 
+        public string ConfirmNewPassword { get; set; }
+
     }
 }
