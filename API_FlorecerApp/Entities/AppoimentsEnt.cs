@@ -8,10 +8,14 @@ namespace API_FlorecerApp.Entities
     public class AppointmentsEnt
     {
         public long AppointmentId { get; set; }
-        public System.DateTime Date { get; set; }
-        public string Hour { get; set; }
-        public bool Available { get; set; }
-        public Nullable<long> UserId { get; set; }
+
+        public DateTime DateTime { get; set; }
+
+        public long AppointmentType { get; set; }
+
+        public long UserId { get; set; }
+
+        public bool Status { get; set; }
 
     }
 }

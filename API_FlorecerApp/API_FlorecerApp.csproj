@@ -227,6 +227,7 @@
     <Compile Include="Controllers\AppointmentController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\BinnacleController.cs" />
+    <Compile Include="Entities\AppoimentsTypesEnt.cs" />
     <Compile Include="Entities\LoginEnt.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Entities\UsersEnt.cs" />
@@ -241,6 +242,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Appointments.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AppointmentTypes.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Binnacle.cs">

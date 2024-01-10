@@ -26,6 +26,7 @@ namespace API_FlorecerApp.Models
         }
     
         public virtual DbSet<Appointments> Appointments { get; set; }
+        public virtual DbSet<AppointmentTypes> AppointmentTypes { get; set; }
         public virtual DbSet<Binnacle> Binnacle { get; set; }
         public virtual DbSet<MedicalPersonnel> MedicalPersonnel { get; set; }
         public virtual DbSet<MedicalTests> MedicalTests { get; set; }
