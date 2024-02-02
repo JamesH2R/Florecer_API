@@ -12,6 +12,8 @@ using System.Web.Http;
 using API_FlorecerApp.Entities;
 using API_FlorecerApp.Models;
 using Newtonsoft.Json;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 
 namespace API_FlorecerApp.Controllers
 {
@@ -29,6 +31,25 @@ namespace API_FlorecerApp.Controllers
                 var file = HttpContext.Current.Request.Files["file"];
                 MedicalTestsEnt test = JsonConvert.DeserializeObject<MedicalTestsEnt>(testJson);
 
+                // Obtener la cadena de conexión y el nombre del contenedor desde la configuración de la aplicación
+                string storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=florecer;AccountKey=8Vk5WpPH+hsRpM22oiLzG9Zqdg//QJ3RKxN50OCjlJNq1f/26PHWhYq/GZLk+/EYH0KhjDUg5CkH+AStv0rudQ==;EndpointSuffix=core.windows.net";
+                string containerName = "florecerapp";
+
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+
+                // Crea el contenedor si no existe
+                container.CreateIfNotExists();
+
+                // Sube el archivo al contenedor
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(file.FileName);
+                using (var fileStream = file.InputStream)
+                {
+                    blockBlob.UploadFromStream(fileStream);
+                }
+
+                // Guarda la información en la base de datos
                 using (var context = new FlorecerAppEntities())
                 {
                     var user = context.Users.FirstOrDefault(u => u.UserId == test.UserId);
@@ -38,32 +59,74 @@ namespace API_FlorecerApp.Controllers
                         return NotFound();
                     }
 
-                    // Obtener el nombre original del archivo
-                    string originalFileName = file.FileName;
-
-                    // Guardar el archivo con su nombre original en lugar de cambiarlo
-                    string filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), originalFileName);
-                    file.SaveAs(filePath);
-
                     context.MedicalTests.Add(new MedicalTests
                     {
                         UserId = test.UserId,
-                        FileName = originalFileName,
-                        FilePath = filePath,
+                        FileName = file.FileName,
+                        FilePath = blockBlob.Uri.ToString(),  // Usa la URI del blob como la ubicación del archivo
                         Date = DateTime.Now
                     });
 
                     context.SaveChanges();
-
-                    return Ok("Evaluación asignada con éxito.");
-
                 }
+
+                return Ok("Evaluación asignada con éxito.");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
+
+        /*
+            [HttpPost]
+            [Route("api/AssignEvaluation")]
+            public IHttpActionResult AssignEvaluation()
+            {
+                try
+                {
+                    var testJson = HttpContext.Current.Request.Form["test"];
+                    var file = HttpContext.Current.Request.Files["file"];
+                    MedicalTestsEnt test = JsonConvert.DeserializeObject<MedicalTestsEnt>(testJson);
+
+                    using (var context = new FlorecerAppEntities())
+                    {
+                        var user = context.Users.FirstOrDefault(u => u.UserId == test.UserId);
+
+                        if (user == null)
+                        {
+                            return NotFound();
+                        }
+
+                        // Obtener el nombre original del archivo
+                        string originalFileName = file.FileName;
+
+                        // Guardar el archivo con su nombre original en lugar de cambiarlo
+                        string filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), originalFileName);
+                        file.SaveAs(filePath);
+
+                        context.MedicalTests.Add(new MedicalTests
+                        {
+                            UserId = test.UserId,
+                            FileName = originalFileName,
+                            FilePath = filePath,
+                            Date = DateTime.Now
+                        });
+
+                        context.SaveChanges();
+
+                        return Ok("Evaluación asignada con éxito.");
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+         */
+
 
         [HttpGet]
         [Route("api/getUserDropdown")]
@@ -411,6 +474,56 @@ namespace API_FlorecerApp.Controllers
 
             return filePath;
         }
+
+
+
+        /*
+            [HttpPost]
+            [Route("api/SendResult")]
+            public IHttpActionResult SendResult()
+            {
+                try
+                {
+                    // Recupera el archivo
+                    var file = HttpContext.Current.Request.Files["file"];
+
+                    // Verifica si se proporcionó un archivo
+                    if (file == null || file.ContentLength == 0)
+                    {
+                        return BadRequest("No se proporcionó ningún archivo en la solicitud.");
+                    }
+
+                    // Lógica para guardar el archivo y los datos en la base de datos
+                    using (var context = new FlorecerAppEntities())
+                    {
+                        context.TestResults.Add(new TestResults
+                        {
+                            RoleId = 1, // RoleId del administrador
+                            FilePath = SaveFileAndGetPath(file),
+                            Date = DateTime.Now
+                        });
+
+                        context.SaveChanges();
+                    }
+
+                    return Ok("Resultado recibido con éxito. Se ha enviado al administrador.");
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest($"Error al enviar el resultado: {ex.Message}");
+                }
+            }
+            private string SaveFileAndGetPath(HttpPostedFile file)
+            {
+                // Guarda el archivo en ~/App_Data
+                var fileName = Path.GetFileName(file.FileName);
+                var filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), fileName);
+                file.SaveAs(filePath);
+
+                return filePath;
+            }
+
+        */
 
         [HttpGet]
         [Route("api/GetUserEvaluationNames/{userId}")]
