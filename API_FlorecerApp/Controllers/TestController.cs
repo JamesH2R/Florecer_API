@@ -79,55 +79,6 @@ namespace API_FlorecerApp.Controllers
         }
 
 
-        /*
-            [HttpPost]
-            [Route("api/AssignEvaluation")]
-            public IHttpActionResult AssignEvaluation()
-            {
-                try
-                {
-                    var testJson = HttpContext.Current.Request.Form["test"];
-                    var file = HttpContext.Current.Request.Files["file"];
-                    MedicalTestsEnt test = JsonConvert.DeserializeObject<MedicalTestsEnt>(testJson);
-
-                    using (var context = new FlorecerAppEntities())
-                    {
-                        var user = context.Users.FirstOrDefault(u => u.UserId == test.UserId);
-
-                        if (user == null)
-                        {
-                            return NotFound();
-                        }
-
-                        // Obtener el nombre original del archivo
-                        string originalFileName = file.FileName;
-
-                        // Guardar el archivo con su nombre original en lugar de cambiarlo
-                        string filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), originalFileName);
-                        file.SaveAs(filePath);
-
-                        context.MedicalTests.Add(new MedicalTests
-                        {
-                            UserId = test.UserId,
-                            FileName = originalFileName,
-                            FilePath = filePath,
-                            Date = DateTime.Now
-                        });
-
-                        context.SaveChanges();
-
-                        return Ok("Evaluación asignada con éxito.");
-
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(ex.Message);
-                }
-            }
-         */
-
-
         [HttpGet]
         [Route("api/getUserDropdown")]
         public IHttpActionResult GetUserDropdown()
@@ -368,9 +319,9 @@ namespace API_FlorecerApp.Controllers
             }
         }
 
-        
+
         [HttpPost]
-        [Route("api/DownloadEvaluation/{userId}/{selectedTestId}")]
+        [Route("api/DownloadEvaluation/")]
         public IHttpActionResult DownloadEvaluation(long userId, long selectedTestId)
         {
             try
@@ -392,29 +343,36 @@ namespace API_FlorecerApp.Controllers
                     // Obtener el path del archivo desde la entidad MedicalTests
                     string filePath = evaluation.FilePath;
 
-                    // Verificar si el archivo existe en el sistema de archivos
-                    if (!File.Exists(filePath))
+                    // Descargar el archivo desde Azure Blob Storage
+                    using (HttpClient client = new HttpClient())
                     {
-                        return Content(HttpStatusCode.NotFound, "El archivo no se encuentra en el sistema de archivos.");
+                        var response = client.GetAsync(filePath).Result;
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            // Leer los bytes del archivo descargado
+                            byte[] fileBytes = response.Content.ReadAsByteArrayAsync().Result;
+
+                            // Devolver el archivo como respuesta
+                            var result = new HttpResponseMessage(HttpStatusCode.OK)
+                            {
+                                Content = new ByteArrayContent(fileBytes)
+                            };
+
+                            result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                            {
+                                FileName = originalFileName
+                            };
+
+                            result.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+
+                            return ResponseMessage(result);
+                        }
+                        else
+                        {
+                            return Content(HttpStatusCode.NotFound, "Error al descargar el archivo desde Azure Blob Storage.");
+                        }
                     }
-
-                    // Leer los bytes del archivo
-                    byte[] fileBytes = File.ReadAllBytes(filePath);
-
-                    // Devolver el archivo como respuesta
-                    var result = new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new ByteArrayContent(fileBytes)
-                    };
-
-                    result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-                    {
-                        FileName = originalFileName
-                    };
-
-                    result.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
-
-                    return ResponseMessage(result);
                 }
             }
             catch (UnauthorizedAccessException ex)
@@ -428,6 +386,7 @@ namespace API_FlorecerApp.Controllers
                 return Content(HttpStatusCode.InternalServerError, $"Error inesperado: {ex.Message}");
             }
         }
+
 
 
         [HttpPost]
@@ -474,56 +433,6 @@ namespace API_FlorecerApp.Controllers
 
             return filePath;
         }
-
-
-
-        /*
-            [HttpPost]
-            [Route("api/SendResult")]
-            public IHttpActionResult SendResult()
-            {
-                try
-                {
-                    // Recupera el archivo
-                    var file = HttpContext.Current.Request.Files["file"];
-
-                    // Verifica si se proporcionó un archivo
-                    if (file == null || file.ContentLength == 0)
-                    {
-                        return BadRequest("No se proporcionó ningún archivo en la solicitud.");
-                    }
-
-                    // Lógica para guardar el archivo y los datos en la base de datos
-                    using (var context = new FlorecerAppEntities())
-                    {
-                        context.TestResults.Add(new TestResults
-                        {
-                            RoleId = 1, // RoleId del administrador
-                            FilePath = SaveFileAndGetPath(file),
-                            Date = DateTime.Now
-                        });
-
-                        context.SaveChanges();
-                    }
-
-                    return Ok("Resultado recibido con éxito. Se ha enviado al administrador.");
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest($"Error al enviar el resultado: {ex.Message}");
-                }
-            }
-            private string SaveFileAndGetPath(HttpPostedFile file)
-            {
-                // Guarda el archivo en ~/App_Data
-                var fileName = Path.GetFileName(file.FileName);
-                var filePath = Path.Combine(HttpContext.Current.Server.MapPath("~/App_Data"), fileName);
-                file.SaveAs(filePath);
-
-                return filePath;
-            }
-
-        */
 
         [HttpGet]
         [Route("api/GetUserEvaluationNames/{userId}")]
