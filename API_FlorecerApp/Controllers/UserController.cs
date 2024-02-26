@@ -59,7 +59,7 @@ namespace API_FlorecerApp.Controllers
                 }
                 else if (user != null && !user.Status)
                 {
-                    return Content(HttpStatusCode.Unauthorized, "El usuario está inactivo.");
+                    return Content(HttpStatusCode.PreconditionFailed, "El usuario está inactivo.");
                 }
                 return Unauthorized();
             }
